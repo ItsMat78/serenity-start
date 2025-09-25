@@ -3,7 +3,6 @@
 
 import { DateTimeDisplay } from '@/components/serene/DateTimeDisplay';
 import { PomodoroTimer } from '@/components/serene/PomodoroTimer';
-import { ThemeSwitcherDialog } from '@/components/serene/ThemeSwitcher';
 import { TodoList } from '@/components/serene/TodoList';
 import { WelcomeMessage } from '@/components/serene/WelcomeMessage';
 import { useAppContext } from '@/hooks/use-theme'; // Use the new central context
@@ -52,13 +51,12 @@ export default function Home() {
           (theme !== 'custom' || !customWallpaper) && 'bg-background'
         )}
       >
-        <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
+        <div className="fixed top-4 right-4 z-50">
           <InstallPWAButton />
-          <ThemeSwitcherDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-          <Header />
+          <Header isSettingsOpen={isSettingsOpen} onSettingsChange={setIsSettingsOpen} />
           <div className="flex flex-col gap-4">
 
             <div className={cn(
@@ -87,13 +85,12 @@ export default function Home() {
         (theme !== 'custom' || !customWallpaper) && 'bg-background'
       )}
     >
-      <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
+      <div className="fixed top-4 right-4 z-50">
         <InstallPWAButton />
-        <ThemeSwitcherDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-        <Header />
+        <Header isSettingsOpen={isSettingsOpen} onSettingsChange={setIsSettingsOpen} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           
           <div className={cn(
@@ -126,7 +123,7 @@ function LoadingSkeleton({ isMobile }: { isMobile: boolean }) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-          <Header />
+          <Header isSettingsOpen={false} onSettingsChange={() => {}} />
           <div className="flex flex-col gap-4 mt-4">
             <div className="flex flex-col gap-4">
               <Skeleton className="h-12 w-3/4" />
@@ -143,7 +140,7 @@ function LoadingSkeleton({ isMobile }: { isMobile: boolean }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-        <Header />
+        <Header isSettingsOpen={false} onSettingsChange={() => {}} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-3 space-y-4">
             <Skeleton className="h-12 w-3/4" />
