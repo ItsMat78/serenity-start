@@ -16,8 +16,7 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
-      /* Try to use the locally installed 'Different Beginnings' font.
-           We include several possible local names to match how the font may be registered on your system. */
+      /* Font-face declarations for locally available fonts */
       @font-face {
         font-family: "Different Beginnings";
         font-style: normal;
@@ -30,7 +29,6 @@
           local("DifferentBeginnings-Regular.ttf");
         font-display: swap;
       }
-      /* Local Canva Sans (default UI font) */
       @font-face {
         font-family: "Canva Sans";
         font-style: normal;
@@ -38,7 +36,6 @@
         src: url("./canva-sans-regular.otf") format("opentype");
         font-display: swap;
       }
-      /* Local The Seasons (for subtitle and version) */
       @font-face {
         font-family: "The Seasons";
         font-style: normal;
@@ -46,23 +43,23 @@
         src: url("./Fontspring-DEMO-theseasons-reg.otf") format("opentype");
         font-display: swap;
       }
-      :root {
-        /* App background + typography colors (matched to provided image) */
-        --bg-color: #0f4a38; /* deep green background */
-        --text-color: #e8f2d9; /* light mint text */
-        --header-color: #d9e47a; /* warm yellow-green headings */
 
-        /* Subject Colors */
-        /* Card palette approximated from the image */
-        --color-break: #e8f2d9; /* pale mint */
-        --color-data-structures: #9bc55f; /* mid green */
-        --color-dbms: #86a8ae; /* desaturated blue-gray */
-        --color-robotics: #b8cc6a; /* olive green */
-        --color-ai-foundations: #86a8ae; /* same blue-gray tone */
-        --color-graph-theory: #66c064; /* bright fresh green */
-        --color-ooad: #eadf8a; /* pale yellow */
+      :root {
+        /* Color Palette */
+        --bg-color: #0f4a38;
+        --text-color: #e8f2d9;
+        --header-color: #d9e47a;
+        --color-break: #e8f2d9;
+        --color-data-structures: #9bc55f;
+        --color-dbms: #86a8ae;
+        --color-robotics: #b8cc6a;
+        --color-ai-foundations: #86a8ae;
+        --color-graph-theory: #66c064;
+        --color-ooad: #eadf8a;
         --text-dark: #2c3e50;
-        --item-border-radius: 20px;
+        --item-border-radius: 60px;
+        --day-bg-color: rgba(0, 0, 0, 0.12);
+        --day-bg-overflow: #6e2a2a; /* Red for overflow */
       }
 
       body {
@@ -74,15 +71,20 @@
         align-items: center;
         min-height: 100vh;
         margin: 0;
-        padding: 1rem 0.5rem;
+        padding: 1rem 0.5rem; /* Vertical padding on body */
         box-sizing: border-box;
       }
 
+      /* Container for the phone-like layout */
       .timetable-container {
         width: 100%;
-        max-width: 1500px; /* Allow wider day columns for more text width */
-        margin: auto;
+        max-width: 480px; /* Constrain width for phone-like view */
+        margin: 1rem auto; /* Center with vertical margin */
         text-align: center;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 1rem; /* Padding inside the container */
+        box-sizing: border-box;
       }
 
       header {
@@ -97,25 +99,27 @@
         font-size: 0.9rem;
         letter-spacing: 1px;
         color: var(--text-color);
-        font-family: "FSP DEMO - The Seasons Regular"; /* classic serif look */
+        font-family: "FSP DEMO - The Seasons Regular";
       }
 
-      header h1 {
-        font-family: "Different Beginnings", "Playfair Display", serif;
-        font-size: clamp(2rem, 6vw, 3.5rem);
+      header .title-container {
         margin: 0.25rem 0 0.25rem;
-        line-height: 1.15;
       }
-      header h1 .title-line {
+      header h1.title-line {
+        font-family: "Different Beginnings", "Playfair Display", serif;
+        margin: 0;
+        line-height: 1.15;
         display: block;
       }
-      header h1 .title-line1 {
+      header h1.title-line1 {
         color: var(--color-data-structures);
-        font-size: clamp(1rem, 4vw, 2.5rem);
+        font-size: 1.5rem;
       }
-      header h1 .title-line2 {
+      header h1.title-line2 {
         color: var(--color-robotics);
+        font-size: 2.5rem;
       }
+
       #versionTag {
         position: absolute;
         right: 0;
@@ -130,18 +134,60 @@
           "Playfair Display", serif;
       }
 
+      /* --- Two-Column Controls --- */
       .controls {
-        margin-bottom: 0;
-        color: var(--header-color);
         display: flex;
-        flex-wrap: wrap; /* Allow wrapping on small screens */
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
+        flex-direction: column;
+        gap: 10px; /* Space between sections */
       }
+
+      .control-section-row {
+        display: flex;
+        gap: 10px;
+      }
+      .control-section-row > .control-section {
+        flex: 1; /* Make them equal width */
+        min-width: 0; /* Allow flex shrinking */
+      }
+
+      .control-section {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .control-section h3 {
+        font-size: 0.8rem;
+        margin: 0 0 10px 0;
+        color: var(--text-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-align: left;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column; /* Stack label and input */
+        align-items: flex-start; /* Align left */
+        gap: 8px; /* Space between label and input */
+        margin-bottom: 10px;
+      }
+
+      .control-group-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between; /* Label left, input right */
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
       .controls-toggle {
-        display: inline-flex;
+        display: flex;
+        flex-wrap: wrap;
         gap: 8px;
+        justify-content: center;
         align-items: center;
         margin-bottom: 1rem;
       }
@@ -161,6 +207,7 @@
         cursor: pointer;
         font-weight: bold;
         transition: transform 0.2s;
+        flex-grow: 1;
       }
       #controlsToggle:hover,
       #screenshotBtn:hover,
@@ -183,15 +230,10 @@
         display: block;
       }
 
-      .control-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
       .swatches {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap; /* Allow swatches to wrap */
       }
       .color-swatch {
         width: 28px;
@@ -206,29 +248,51 @@
         transform: scale(1.08);
       }
 
+      .add-swatch-btn {
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--header-color);
+        border: 1px dashed var(--header-color);
+        border-radius: 6px;
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 26px;
+        padding: 0;
+      }
+      .add-swatch-btn:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
       .controls label {
         font-weight: 500;
+        margin-right: 4px;
+        flex-shrink: 0; /* Prevent label from shrinking */
       }
 
       #addEventBtn {
         background-color: var(--header-color);
         color: var(--bg-color);
         border: none;
-        padding: 10px 20px;
+        padding: 12px 20px; /* Taller button */
         border-radius: 10px;
         cursor: pointer;
         font-weight: bold;
         transition: transform 0.2s;
+        width: 100%; /* Make button full-width */
       }
 
       #addEventBtn:hover {
-        transform: scale(1.05);
+        transform: scale(1.02);
       }
 
       input[type="range"] {
         -webkit-appearance: none;
         appearance: none;
-        width: 180px;
+        width: 100%; /* Make slider full-width */
+        flex-grow: 1; /* Allow slider to fill space */
+        min-width: 100px;
         height: 8px;
         background: rgba(255, 255, 255, 0.3);
         border-radius: 5px;
@@ -251,6 +315,7 @@
         border-radius: 50%;
         border: 3px solid var(--bg-color);
       }
+      /* --- END: Compact Controls --- */
 
       .timetable-grid {
         display: grid;
@@ -281,11 +346,17 @@
       }
 
       .day-bg {
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--day-bg-color);
         border-radius: var(--item-border-radius);
         z-index: 0;
         pointer-events: none;
+        transition: background-color 0.3s ease; /* Animate color change */
       }
+
+      .day-bg.overflowing {
+        background-color: var(--day-bg-overflow);
+      }
+
       .schedule-item {
         position: relative;
         padding: 10px 2px;
@@ -296,13 +367,38 @@
         align-items: center;
         text-align: center;
         cursor: grab;
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out,
+        /* UPDATED: Added grid-row-start and end to transition */
+        transition: transform 0.2s ease, box-shadow 0.2s ease-in-out,
           grid-row-start 0.3s ease, grid-row-end 0.3s ease,
           grid-column-start 0.3s ease;
         min-height: 25px; /* Minimum height for one slot */
         grid-column-end: span 1;
-        overflow: hidden; /* Prevent 30-min items from visually overflowing their grid area */
+        overflow: hidden;
         box-sizing: border-box;
+      }
+
+      /* --- NEW: Pop-in animation --- */
+      @keyframes popIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .schedule-item.new-pop {
+        /* For Add Event & Duplication */
+        animation: popIn 0.3s ease-out;
+      }
+
+      /* NEW: For Deletion */
+      .schedule-item.deleting {
+        transform: scale(0.8);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 0; /* Go behind other items */
       }
 
       .schedule-item.selected {
@@ -340,7 +436,7 @@
       }
       .subject {
         font-weight: 700;
-        font-size: 1.5rem;
+        font-size: 1rem; /* Reduced font size for phone layout */
       }
       .subject,
       .time {
@@ -472,14 +568,18 @@
         font-size: 24px;
       }
 
+      /* Reset container styles for screenshot */
       body.screenshot-mode .timetable-container {
         display: flex;
         flex-direction: column;
         height: 2400px;
         width: 1080px;
+        max-width: 1080px; /* Override phone-like width */
         margin: 0;
         padding: 80px 40px;
         box-sizing: border-box;
+        border-radius: 0; /* Reset border radius */
+        box-shadow: none; /* Reset shadow */
       }
 
       body.screenshot-mode .timetable-grid {
@@ -487,10 +587,11 @@
         flex-grow: 1;
       }
 
-      body.screenshot-mode header h1 {
+      /* Screenshot title sizes are NOT affected by the user change */
+      body.screenshot-mode header h1.title-line {
         font-size: 5rem;
       }
-      body.screenshot-mode header h1 .title-line1 {
+      body.screenshot-mode header h1.title-line1 {
         font-size: 4rem;
       }
 
@@ -501,33 +602,29 @@
       }
 
       body.screenshot-mode .schedule-item .subject {
-        font-size: 2.5rem;
-        line-height: 1;
+        font-size: 2.5rem; /* Restore larger font size for screenshot */
+        line-height: 1.1;
       }
 
-      /* --- NEW RULE ADDED HERE --- */
       body.screenshot-mode .schedule-item .time {
-        font-size: 1.6rem;
-        top: 0.3em; /* Use relative unit to scale with font size */
-      }
-      .btech {
-        font-family: "The Seasons", "FSP DEMO - The Seasons Regular",
-          "Playfair Display", serif;
-        padding-left: 1rem;
-        font-size: 0.8rem;
+        font-size: 1.2rem;
+        top: 0.5em; /* Use relative unit to scale with font size */
       }
 
-      body.screenshot-mode .btech {
-        font-family: "The Seasons", "FSP DEMO - The Seasons Regular",
-          "Playfair Display", serif;
-        padding-left: 1rem;
-        font-size: 2rem;
+      body.screenshot-mode header p {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
       }
-
       body.screenshot-mode #versionTag {
-        font-family: "The Seasons", "FSP DEMO - The Seasons Regular",
-          "Playfair Display", serif;
-        font-size: 2rem;
+        font-size: 1.5rem;
+        padding: 8px 16px;
+      }
+
+      body.screenshot-mode footer {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        padding-top: 40px;
+        text-align: center;
       }
       /* == END: Screenshot-Specific Styles == */
     </style>
@@ -538,10 +635,24 @@
         <p class="btech" contenteditable="true" title="Edit subtitle">
           Bachelor of Technology
         </p>
-        <h1 contenteditable="true" title="Edit title">
-          <span class="title-line title-line1">data science &</span>
-          <span class="title-line title-line2">artificial intelligence</span>
-        </h1>
+        <div class="title-container">
+          <h1
+            id="titleLine1"
+            class="title-line title-line1"
+            contenteditable="true"
+            title="Edit title line 1"
+          >
+            data science &
+          </h1>
+          <h1
+            id="titleLine2"
+            class="title-line title-line2"
+            contenteditable="true"
+            title="Edit title line 2"
+          >
+            artificial intelligence
+          </h1>
+        </div>
         <p id="versionTag" contenteditable="true" title="Edit version">
           Version 2.1.2
         </p>
@@ -554,112 +665,93 @@
         <button id="loadBtn">📂 Load</button>
         <input type="file" id="loadFile" accept=".json" style="display: none" />
       </div>
+
       <div class="controls-panel" id="controlsPanel">
         <div class="controls">
-          <div class="control-group">
-            <label for="cornerRadiusSlider">Corner Rounding</label>
-            <input
-              type="range"
-              id="cornerRadiusSlider"
-              min="0"
-              max="60"
-              value="20"
-            />
-          </div>
-          <div class="control-group">
-            <label for="colorPicker">Event Color</label>
-            <input type="color" id="colorPicker" value="#eaf6ea" />
-          </div>
-          <div class="control-group">
-            <div class="swatches" id="colorSwatches" aria-label="Preset colors">
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#e8f2d9"
-                style="background: #e8f2d9"
-                title="Break"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#9bc55f"
-                style="background: #9bc55f"
-                title="Data Structures"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#86a8ae"
-                style="background: #86a8ae"
-                title="DBMS"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#b8cc6a"
-                style="background: #b8cc6a"
-                title="Robotics"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#66c064"
-                style="background: #66c064"
-                title="Graph Theory"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#eadf8a"
-                style="background: #eadf8a"
-                title="OOAD"
-              ></button>
+          <div class="control-section-row">
+            <div class="control-section" style="flex: 1">
+              <h3>Event Style</h3>
+              <div class="control-group">
+                <div class="control-group-row" style="margin-bottom: 10px">
+                  <label for="colorPicker">Event Color</label>
+                  <input type="color" id="colorPicker" value="#eaf6ea" />
+                </div>
+                <label>Event Swatches (Auto-loads)</label>
+                <div
+                  class="swatches"
+                  id="colorSwatches"
+                  aria-label="Event swatches (auto-loaded)"
+                ></div>
+              </div>
+              <div class="control-group" style="margin-top: 10px">
+                <button id="addEventBtn">Add Event</button>
+              </div>
+            </div>
+
+            <div class="control-section" style="flex: 1">
+              <h3>Background</h3>
+              <div class="control-group-row">
+                <label for="cornerRadiusSlider">Corner Rounding</label>
+                <input
+                  type="range"
+                  id="cornerRadiusSlider"
+                  min="0"
+                  max="60"
+                  value="60"
+                />
+              </div>
+              <div class="control-group-row">
+                <label for="bgColorPicker">BG Color</label>
+                <input type="color" id="bgColorPicker" value="#0f4a38" />
+              </div>
+              <div class="control-group">
+                <label>Swatches (Long-press to remove)</label>
+                <div
+                  class="swatches"
+                  id="bgSwatches"
+                  aria-label="Background presets"
+                >
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#0f4a38"
+                    style="background: #0f4a38"
+                    title="Deep Green"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#0f5b49"
+                    style="background: #0f5b49"
+                    title="Forest"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#124e78"
+                    style="background: #124e78"
+                    title="Deep Blue"
+                  ></button>
+                  <button
+                    class="color-swatch"
+                    type="button"
+                    data-color="#0d3b2e"
+                    style="background: #0d3b2e"
+                    title="Dark Evergreen"
+                  ></button>
+                </div>
+                <button
+                  id="addBgSwatchBtn"
+                  class="add-swatch-btn"
+                  title="Add current background"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
-          <div class="control-group">
-            <label for="bgColorPicker">Background</label>
-            <input type="color" id="bgColorPicker" value="#0f4a38" />
-          </div>
-          <div class="control-group">
-            <div
-              class="swatches"
-              id="bgSwatches"
-              aria-label="Background presets"
-            >
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#0f4a38"
-                style="background: #0f4a38"
-                title="Deep Green"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#0f5b49"
-                style="background: #0f5b49"
-                title="Forest"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#124e78"
-                style="background: #124e78"
-                title="Deep Blue"
-              ></button>
-              <button
-                class="color-swatch"
-                type="button"
-                data-color="#0d3b2e"
-                style="background: #0d3b2e"
-                title="Dark Evergreen"
-              ></button>
-            </div>
-          </div>
-          <button id="addEventBtn">Add Event</button>
         </div>
       </div>
-
       <div class="timetable-grid" id="timetableGrid">
         <div class="day-header" style="grid-column: 1">Mon</div>
         <div class="day-header" style="grid-column: 2">Tue</div>
@@ -667,11 +759,31 @@
         <div class="day-header" style="grid-column: 4">Thu</div>
         <div class="day-header" style="grid-column: 5">Fri</div>
 
-        <div class="day-bg" style="grid-column: 1; grid-row: 2 / 18"></div>
-        <div class="day-bg" style="grid-column: 2; grid-row: 2 / 18"></div>
-        <div class="day-bg" style="grid-column: 3; grid-row: 2 / 18"></div>
-        <div class="day-bg" style="grid-column: 4; grid-row: 2 / 18"></div>
-        <div class="day-bg" style="grid-column: 5; grid-row: 2 / 18"></div>
+        <div
+          id="day-bg-1"
+          class="day-bg"
+          style="grid-column: 1; grid-row: 2 / 18"
+        ></div>
+        <div
+          id="day-bg-2"
+          class="day-bg"
+          style="grid-column: 2; grid-row: 2 / 18"
+        ></div>
+        <div
+          id="day-bg-3"
+          class="day-bg"
+          style="grid-column: 3; grid-row: 2 / 18"
+        ></div>
+        <div
+          id="day-bg-4"
+          class="day-bg"
+          style="grid-column: 4; grid-row: 2 / 18"
+        ></div>
+        <div
+          id="day-bg-5"
+          class="day-bg"
+          style="grid-column: 5; grid-row: 2 / 18"
+        ></div>
       </div>
       <footer>
         <p contenteditable="true">for the DSAI baddies</p>
@@ -693,12 +805,85 @@
         const loadBtn = document.getElementById("loadBtn");
         const loadFileInput = document.getElementById("loadFile");
 
+        // UPDATED: Removed addSwatchBtn
+        const addBgSwatchBtn = document.getElementById("addBgSwatchBtn");
+        const eventSwatchesContainer = document.getElementById("colorSwatches");
+        const bgSwatchesContainer = document.getElementById("bgSwatches");
+
+        const titleLine1El = document.getElementById("titleLine1");
+        const titleLine2El = document.getElementById("titleLine2");
+        const subtitleEl = document.querySelector(".btech");
+        const versionEl = document.getElementById("versionTag");
+        const footerEl = document.querySelector("footer p");
+
         let eventCounter = 0;
         const GRID_START_ROW = 2;
-        const GRID_END_ROW = 18;
+        const GRID_END_ROW = 18; // This is the END row, so 17 is the last available slot
         let selectedItem = null;
 
         // --- HELPER FUNCTIONS ---
+
+        function createSwatch(color, container) {
+          const swatch = document.createElement("button");
+          swatch.className = "color-swatch";
+          swatch.type = "button";
+          swatch.dataset.color = color;
+          swatch.style.background = color;
+          swatch.title = `${color} (Right-click to remove)`;
+          container.appendChild(swatch);
+          return swatch;
+        }
+
+        // --- UPDATED: New function to refresh swatches from events ---
+        function updateEventSwatches() {
+          const events = grid.querySelectorAll(".schedule-item");
+
+          // --- NEW: Add default colors first ---
+          const colors = new Set([
+            "#e8f2d9", // Break
+            "#9bc55f", // Data Structures
+            "#86a8ae", // DBMS
+            "#b8cc6a", // Robotics
+            "#66c064", // Graph Theory
+            "#eadf8a", // OOAD
+          ]);
+
+          events.forEach((item) => {
+            colors.add(
+              item.dataset.color ||
+                rgbToHex(window.getComputedStyle(item).backgroundColor)
+            );
+          });
+
+          eventSwatchesContainer.innerHTML = ""; // Clear
+          colors.forEach((color) => {
+            const swatch = createSwatch(color, eventSwatchesContainer);
+            // --- NEW: Add title for default colors ---
+            switch (color) {
+              case "#e8f2d9":
+                swatch.title = "Break";
+                break;
+              case "#9bc55f":
+                swatch.title = "Data Structures";
+                break;
+              case "#86a8ae":
+                swatch.title = "DBMS";
+                break;
+              case "#b8cc6a":
+                swatch.title = "Robotics";
+                break;
+              case "#66c064":
+                swatch.title = "Graph Theory";
+                break;
+              case "#eadf8a":
+                swatch.title = "OOAD";
+                break;
+              default:
+                swatch.title = `${color} (Read-only)`;
+            }
+          });
+        }
+
         function rgbToHex(rgbString) {
           if (!rgbString) return "#ffffff";
           const match = rgbString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
@@ -823,30 +1008,76 @@
           else item.classList.remove("is-small");
         }
 
-        function fixColumnLayout(col, draggedItemId = null) {
+        function checkColumnOverflow(col) {
+          const bgEl = document.getElementById(`day-bg-${col}`);
+          if (!bgEl) return;
+
           const itemsInCol = Array.from(grid.querySelectorAll(".schedule-item"))
             .filter(
               (i) =>
-                parseInt(window.getComputedStyle(i).gridColumnStart) === col &&
-                i.id !== draggedItemId
+                parseInt(window.getComputedStyle(i).gridColumnStart) === col
             )
             .sort(
               (a, b) =>
                 parseInt(window.getComputedStyle(a).gridRowStart) -
                 parseInt(window.getComputedStyle(b).gridRowStart)
             );
+
+          if (itemsInCol.length === 0) {
+            bgEl.classList.remove("overflowing");
+            return false;
+          }
+
+          const lastItem = itemsInCol[itemsInCol.length - 1];
+          const lastItemEnd = parseInt(
+            window.getComputedStyle(lastItem).gridRowEnd
+          );
+
+          if (lastItemEnd > GRID_END_ROW) {
+            bgEl.classList.add("overflowing");
+            return true; // Column is overflowing
+          } else {
+            bgEl.classList.remove("overflowing");
+            return false; // Column is NOT overflowing
+          }
+        }
+
+        // --- UPDATED: fixColumnLayout (Bug Fix) ---
+        /**
+         * Re-stacks all items in a column based on their gridRowStart.
+         */
+        function fixColumnLayout(col, ignoreItemId = null) {
+          const itemsInCol = Array.from(grid.querySelectorAll(".schedule-item"))
+            .filter((i) => {
+              if (i.id === ignoreItemId) return false; // --- Ignore item being deleted
+              return (
+                parseInt(window.getComputedStyle(i).gridColumnStart) === col
+              );
+            })
+            .sort((a, b) => {
+              // --- Simple sort by visual start row ---
+              return (
+                parseInt(window.getComputedStyle(a).gridRowStart) -
+                parseInt(window.getComputedStyle(b).gridRowStart)
+              );
+            });
+
           let nextAvailableRow = GRID_START_ROW;
           itemsInCol.forEach((item) => {
             const style = window.getComputedStyle(item);
             const duration =
               parseInt(style.gridRowEnd) - parseInt(style.gridRowStart);
-            if (parseInt(style.gridRowStart) !== nextAvailableRow) {
-              item.style.gridRowStart = nextAvailableRow;
-              item.style.gridRowEnd = nextAvailableRow + duration;
-            }
-            nextAvailableRow = parseInt(item.style.gridRowEnd);
+
+            // Set new start and end based on stacking
+            item.style.gridRowStart = nextAvailableRow;
+            item.style.gridRowEnd = nextAvailableRow + duration;
+
+            nextAvailableRow += duration; // Update for next loop
             updateTimeDisplay(item);
           });
+
+          // After fixing layout, check for overflow
+          checkColumnOverflow(col);
         }
 
         function findNextAvailableSlot() {
@@ -917,11 +1148,14 @@
             applyContrastToItem(item);
             adjustItemHeightToContent(item);
           });
+          return item; // --- RETURN ITEM FOR ANIMATION ---
         }
 
         function initializeGridItems(items) {
           let draggedItem = null;
           let placeholder = null;
+          let rowHeight, rowGap, totalRowHeight;
+
           items.forEach((item) => {
             if (item.dataset.dragInitialized) return;
             item.dataset.dragInitialized = true;
@@ -936,6 +1170,7 @@
               adjustItemHeightToContent(item);
               applyContrastToItem(item);
             });
+
             item.addEventListener("dragstart", (e) => {
               if (
                 e.target.classList.contains("resize-handle-top") ||
@@ -946,10 +1181,23 @@
                 return;
               }
               draggedItem = item;
+
               const gridStyle = window.getComputedStyle(grid);
-              const rowHeight = parseFloat(gridStyle.gridAutoRows);
-              const rowGap = parseFloat(gridStyle.rowGap);
-              const totalRowHeight = rowHeight + rowGap;
+              rowHeight = parseFloat(gridStyle.gridAutoRows);
+              rowGap = parseFloat(gridStyle.rowGap);
+              totalRowHeight = rowHeight + rowGap;
+
+              const draggedStyle = window.getComputedStyle(draggedItem);
+              const duration =
+                parseInt(draggedStyle.gridRowEnd) -
+                parseInt(draggedStyle.gridRowStart);
+              const pushHeight = duration * totalRowHeight;
+
+              draggedItem.dataset.sourceCol = draggedStyle.gridColumnStart;
+              draggedItem.dataset.sourceRowStart = draggedStyle.gridRowStart;
+              draggedItem.dataset.sourceRowEnd = draggedStyle.gridRowEnd;
+              draggedItem.dataset.pushHeight = pushHeight;
+
               const rect = item.getBoundingClientRect();
               const clientY = e.clientY;
               let grabOffsetRows = 0;
@@ -962,125 +1210,201 @@
                 grabOffsetRows = Math.round(offsetPx / totalRowHeight);
               }
               item.dataset.grabOffsetRows = String(grabOffsetRows);
+
               placeholder = document.createElement("div");
               placeholder.classList.add("placeholder");
-              const draggedStyle = window.getComputedStyle(draggedItem);
-              placeholder.style.gridColumn = draggedStyle.gridColumn;
-              placeholder.style.gridRow = draggedStyle.gridRow;
+              placeholder.style.gridColumn = draggedStyle.gridColumnStart;
+              placeholder.style.gridRow = `${draggedStyle.gridRowStart} / ${draggedStyle.gridRowEnd}`;
               grid.appendChild(placeholder);
               setTimeout(() => item.classList.add("dragging"), 0);
             });
+
             item.addEventListener("dragend", () => {
               if (draggedItem) draggedItem.classList.remove("dragging");
               if (placeholder && placeholder.parentElement)
                 placeholder.parentElement.removeChild(placeholder);
+              // Clear transforms on dragend, as drop might not fire
+              grid
+                .querySelectorAll(".schedule-item")
+                .forEach((i) => (i.style.transform = ""));
               draggedItem = null;
               placeholder = null;
             });
+
             if (item.querySelector(".resize-handle-bottom")) return;
             const bottomHandle = document.createElement("div");
             bottomHandle.className = "resize-handle-bottom";
             item.appendChild(bottomHandle);
-            let startY, startRowEnd, rowHeight, gridRowGap;
+            let startY, startRowStart, startRowEnd, resizeTotalRowHeight;
+
             const startBottomResize = (e) => {
               e.preventDefault();
               e.stopPropagation();
               startY = e.pageY || e.touches[0].pageY;
-              startRowEnd = parseInt(window.getComputedStyle(item).gridRowEnd);
+              const style = window.getComputedStyle(item);
+              startRowStart = parseInt(style.gridRowStart);
+              startRowEnd = parseInt(style.gridRowEnd);
+
               const gridStyle = window.getComputedStyle(grid);
-              gridRowGap = parseInt(gridStyle.gap, 10);
-              rowHeight = parseFloat(gridStyle.gridAutoRows);
+              const gridRowGap = parseInt(gridStyle.gap, 10);
+              const resizeRowHeight = parseFloat(gridStyle.gridAutoRows);
+              resizeTotalRowHeight = resizeRowHeight + gridRowGap;
+
               document.addEventListener("mousemove", doBottomResize);
               document.addEventListener("mouseup", stopBottomResize);
               document.addEventListener("touchmove", doBottomResize);
               document.addEventListener("touchend", stopBottomResize);
             };
+
             const doBottomResize = (e) => {
               e.preventDefault();
               const currentY = e.pageY || e.touches[0].pageY;
               const diffY = currentY - startY;
-              if (rowHeight > 0) {
-                const rowsToAdd = Math.round(diffY / (rowHeight + gridRowGap));
+              if (resizeTotalRowHeight > 0) {
+                const rowsToAdd = Math.round(diffY / resizeTotalRowHeight);
                 let newRowEnd = startRowEnd + rowsToAdd;
-                const currentStartRow = parseInt(
-                  window.getComputedStyle(item).gridRowStart
+
+                if (newRowEnd <= startRowStart) newRowEnd = startRowStart + 1;
+
+                item.style.gridRowEnd = newRowEnd;
+
+                const oldDuration = startRowEnd - startRowStart;
+                const newDuration = newRowEnd - startRowStart;
+                const durationChange = newDuration - oldDuration;
+                const pushHeightPx = durationChange * resizeTotalRowHeight;
+
+                const currentCol = parseInt(
+                  window.getComputedStyle(item).gridColumnStart
+                );
+                const itemsInCol = Array.from(
+                  grid.querySelectorAll(".schedule-item")
+                ).filter(
+                  (i) =>
+                    i !== item &&
+                    parseInt(window.getComputedStyle(i).gridColumnStart) ===
+                      currentCol
                 );
 
-                if (newRowEnd <= currentStartRow)
-                  newRowEnd = currentStartRow + 1;
-                if (newRowEnd > GRID_END_ROW) newRowEnd = GRID_END_ROW;
-
-                // REMOVED logic that stops resizing at the next item.
-                // Now it overlaps visually during drag, and fixColumnLayout handles the push on mouseup.
-                item.style.gridRowEnd = newRowEnd;
+                itemsInCol.forEach((otherItem) => {
+                  const otherStart = parseInt(
+                    window.getComputedStyle(otherItem).gridRowStart
+                  );
+                  if (otherStart >= startRowEnd) {
+                    otherItem.style.transform = `translateY(${pushHeightPx}px)`;
+                  } else {
+                    otherItem.style.transform = "translateY(0px)";
+                  }
+                });
               }
             };
+
             const stopBottomResize = () => {
               document.removeEventListener("mousemove", doBottomResize);
               document.removeEventListener("mouseup", stopBottomResize);
               document.removeEventListener("touchmove", doBottomResize);
               document.removeEventListener("touchend", stopBottomResize);
-              checkItemSize(item);
+              grid
+                .querySelectorAll(".schedule-item")
+                .forEach((i) => (i.style.transform = "")); // Clear all animations
+
               const col = parseInt(
                 window.getComputedStyle(item).gridColumnStart
               );
-              fixColumnLayout(col);
+              fixColumnLayout(col); // Fix layout, simple sort
+              checkItemSize(item);
+              updateEventSwatches(); // Update swatches in case color changed
             };
             bottomHandle.addEventListener("mousedown", startBottomResize);
             bottomHandle.addEventListener("touchstart", startBottomResize);
+
             const topHandle = document.createElement("div");
             topHandle.className = "resize-handle-top";
             item.appendChild(topHandle);
-            let topStartY, topStartRowStart;
+            let topStartY, topStartRowStart, topStartRowEnd;
+
             const startTopResize = (e) => {
               e.preventDefault();
               e.stopPropagation();
               topStartY = e.pageY || e.touches[0].pageY;
-              topStartRowStart = parseInt(
-                window.getComputedStyle(item).gridRowStart
-              );
+              const style = window.getComputedStyle(item);
+              topStartRowStart = parseInt(style.gridRowStart);
+              topStartRowEnd = parseInt(style.gridRowEnd);
+
               const gridStyle = window.getComputedStyle(grid);
-              gridRowGap = parseInt(gridStyle.gap, 10);
-              rowHeight = parseFloat(gridStyle.gridAutoRows);
+              const gridRowGap = parseInt(gridStyle.gap, 10);
+              const resizeRowHeight = parseFloat(gridStyle.gridAutoRows);
+              resizeTotalRowHeight = resizeRowHeight + gridRowGap;
+
               document.addEventListener("mousemove", doTopResize);
               document.addEventListener("mouseup", stopTopResize);
               document.addEventListener("touchmove", doTopResize);
               document.addEventListener("touchend", stopTopResize);
             };
+
             const doTopResize = (e) => {
               e.preventDefault();
               const currentY = e.pageY || e.touches[0].pageY;
               const diffY = currentY - topStartY;
-              if (rowHeight > 0) {
-                const rowsToAdd = Math.round(diffY / (rowHeight + gridRowGap));
+              if (resizeTotalRowHeight > 0) {
+                const rowsToAdd = Math.round(diffY / resizeTotalRowHeight);
                 let newRowStart = topStartRowStart + rowsToAdd;
-                const currentRowEnd = parseInt(
-                  window.getComputedStyle(item).gridRowEnd
-                );
 
                 if (newRowStart < GRID_START_ROW) newRowStart = GRID_START_ROW;
-                if (newRowStart >= currentRowEnd)
-                  newRowStart = currentRowEnd - 1;
+                if (newRowStart >= topStartRowEnd)
+                  newRowStart = topStartRowEnd - 1;
 
-                // REMOVED logic that stops resizing. Let fixColumnLayout handle it on mouseup.
                 item.style.gridRowStart = newRowStart;
+
+                const durationChange = topStartRowStart - newRowStart;
+                const pushHeightPx = durationChange * resizeTotalRowHeight;
+
+                const currentCol = parseInt(
+                  window.getComputedStyle(item).gridColumnStart
+                );
+                const itemsInCol = Array.from(
+                  grid.querySelectorAll(".schedule-item")
+                ).filter(
+                  (i) =>
+                    i !== item &&
+                    parseInt(window.getComputedStyle(i).gridColumnStart) ===
+                      currentCol
+                );
+
+                itemsInCol.forEach((otherItem) => {
+                  const otherStart = parseInt(
+                    window.getComputedStyle(otherItem).gridRowStart
+                  );
+                  if (otherStart >= topStartRowStart) {
+                    otherItem.style.transform = `translateY(${pushHeightPx}px)`;
+                  } else {
+                    otherItem.style.transform = "translateY(0px)";
+                  }
+                });
+
                 updateTimeDisplay(item);
                 adjustItemHeightToContent(item);
               }
             };
+
             const stopTopResize = () => {
               document.removeEventListener("mousemove", doTopResize);
               document.removeEventListener("mouseup", stopTopResize);
               document.removeEventListener("touchmove", doTopResize);
               document.removeEventListener("touchend", stopTopResize);
-              checkItemSize(item);
+              grid
+                .querySelectorAll(".schedule-item")
+                .forEach((i) => (i.style.transform = "")); // Clear all animations
+
               const col = parseInt(
                 window.getComputedStyle(item).gridColumnStart
               );
-              fixColumnLayout(col);
+              fixColumnLayout(col); // Fix layout, simple sort
+              checkItemSize(item);
             };
             topHandle.addEventListener("mousedown", startTopResize);
             topHandle.addEventListener("touchstart", startTopResize);
+
+            // --- UPDATED: Delete Button Logic ---
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "delete-btn";
             deleteBtn.innerHTML = "&times;";
@@ -1090,17 +1414,24 @@
               const col = parseInt(
                 window.getComputedStyle(item).gridColumnStart
               );
-              item.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-              item.style.transform = "scale(0.8)";
-              item.style.opacity = "0";
+
+              item.classList.add("deleting"); // Add class to trigger animation
+
+              // Fix layout immediately so other items slide up
+              fixColumnLayout(col, null, item.id);
+              updateEventSwatches(); // Update swatches
+
               setTimeout(() => {
                 if (selectedItem === item) {
                   selectedItem = null;
                 }
                 item.remove();
-                fixColumnLayout(col);
-              }, 300);
+                // Check overflow again just in case
+                checkColumnOverflow(col);
+              }, 300); // Match animation duration
             });
+            // --- END: Delete Button Logic ---
+
             const duplicateBtn = document.createElement("button");
             duplicateBtn.className = "duplicate-btn";
             duplicateBtn.title = "Duplicate";
@@ -1141,25 +1472,33 @@
                 if (nextAvailableRow + duration <= s) break;
                 nextAvailableRow = eRow;
               }
-              if (nextAvailableRow + duration <= GRID_END_ROW) {
-                createScheduleItem(
-                  currentCol,
-                  nextAvailableRow,
-                  duration,
-                  subjectText,
-                  colorHex
-                );
-                return;
+
+              let slot = { col: currentCol, startRow: nextAvailableRow };
+
+              // If no space in current column, find next available
+              if (nextAvailableRow + duration > GRID_END_ROW) {
+                slot = findNextAvailableSlot();
               }
-              const slot = findNextAvailableSlot();
+
               if (slot) {
-                createScheduleItem(
+                // --- UPDATED: Simpler "pop-in" animation ---
+                const newItem = createScheduleItem(
                   slot.col,
                   slot.startRow,
                   duration,
                   subjectText,
                   colorHex
                 );
+
+                if (newItem) {
+                  newItem.classList.add("new-pop"); // Use new-pop
+                  setTimeout(() => {
+                    newItem.classList.remove("new-pop");
+                  }, 300); // Match animation duration
+                }
+
+                fixColumnLayout(slot.col); // Fix layout, no active item
+                // --- END: Duplication Animation ---
               } else {
                 alert("No available slots to duplicate.");
               }
@@ -1175,18 +1514,22 @@
           const draggedItem = document.querySelector(".dragging");
           const placeholder = document.querySelector(".placeholder");
           if (!draggedItem || !placeholder) return;
+
           const gridRect = grid.getBoundingClientRect();
           const gridStyle = window.getComputedStyle(grid);
           const dayGridWidth = gridRect.width;
           const dayColWidth = dayGridWidth / 5;
-          const rowHeight = parseFloat(gridStyle.gridAutoRows);
-          const rowGap = parseFloat(gridStyle.rowGap);
-          const totalRowHeight = rowHeight + rowGap;
-          if (isNaN(totalRowHeight) || totalRowHeight <= 0) return;
+
+          const liveRowHeight = parseFloat(gridStyle.gridAutoRows);
+          const liveRowGap = parseFloat(gridStyle.rowGap);
+          const liveTotalRowHeight = liveRowHeight + liveRowGap;
+          if (isNaN(liveTotalRowHeight) || liveTotalRowHeight <= 0) return;
+
           const x = e.clientX - gridRect.left;
           const y = e.clientY - gridRect.top;
           if (x < 0) return;
-          const column = Math.min(
+
+          const currentColumn = Math.min(
             5,
             Math.max(1, Math.floor(x / dayColWidth) + 1)
           );
@@ -1195,72 +1538,78 @@
             10
           );
           let newStartRow =
-            Math.floor(y / totalRowHeight) + GRID_START_ROW - grabOffsetRows;
+            Math.floor(y / liveTotalRowHeight) +
+            GRID_START_ROW -
+            grabOffsetRows;
           if (newStartRow < GRID_START_ROW) newStartRow = GRID_START_ROW;
+
           const duration =
-            parseInt(window.getComputedStyle(draggedItem).gridRowEnd) -
-            parseInt(window.getComputedStyle(draggedItem).gridRowStart);
-          if (newStartRow + duration > GRID_END_ROW)
-            newStartRow = GRID_END_ROW - duration;
-          placeholder.style.gridColumn = column;
+            parseInt(draggedItem.dataset.sourceRowEnd) -
+            parseInt(draggedItem.dataset.sourceRowStart);
+
+          placeholder.style.gridColumn = currentColumn;
           placeholder.style.gridRow = `${newStartRow} / ${
             newStartRow + duration
           }`;
+
+          const pushHeightPx = parseFloat(draggedItem.dataset.pushHeight) || 0;
+
+          const allItems = grid.querySelectorAll(".schedule-item");
+          allItems.forEach((item) => {
+            if (item === draggedItem) return;
+
+            const itemCol = parseInt(
+              window.getComputedStyle(item).gridColumnStart
+            );
+            const itemStart = parseInt(
+              window.getComputedStyle(item).gridRowStart
+            );
+
+            if (itemCol === currentColumn && itemStart >= newStartRow) {
+              item.style.transform = `translateY(${pushHeightPx}px)`;
+            } else {
+              item.style.transform = "translateY(0px)";
+            }
+          });
         });
 
         grid.addEventListener("drop", (e) => {
           e.preventDefault();
+
           const draggedItem = document.querySelector(".dragging");
           const placeholder = document.querySelector(".placeholder");
+
+          // --- UPDATED: Smooth Drop Animation ---
+          // 1. Clear all transforms instantly to snap items to grid positions
+          setTimeout(() => {
+            grid.querySelectorAll(".schedule-item").forEach((i) => {
+              i.style.transform = "";
+              i.style.transition = ""; // Clear any 'none' transition
+            });
+          }, 0);
+
           if (!draggedItem || !placeholder) return;
-          const sourceCol = parseInt(
-            window.getComputedStyle(draggedItem).gridColumnStart
-          );
+
+          const sourceCol = parseInt(draggedItem.dataset.sourceCol);
+          const sourceRowStart = parseInt(draggedItem.dataset.sourceRowStart);
+          const sourceRowEnd = parseInt(draggedItem.dataset.sourceRowEnd);
+          const dropDuration = sourceRowEnd - sourceRowStart;
+
           const dropCol = parseInt(placeholder.style.gridColumn);
           const dropRowStart = parseInt(
             placeholder.style.gridRow.split(" / ")[0]
           );
-          const dropDuration =
-            parseInt(window.getComputedStyle(draggedItem).gridRowEnd) -
-            parseInt(window.getComputedStyle(draggedItem).gridRowStart);
-          const itemsInDropCol = Array.from(
-            grid.querySelectorAll(".schedule-item")
-          )
-            .filter(
-              (i) =>
-                parseInt(window.getComputedStyle(i).gridColumnStart) ===
-                  dropCol && i !== draggedItem
-            )
-            .sort(
-              (a, b) =>
-                parseInt(window.getComputedStyle(a).gridRowStart) -
-                parseInt(window.getComputedStyle(b).gridRowStart)
-            );
-          let currentRow = dropRowStart + dropDuration;
-          itemsInDropCol.forEach((item) => {
-            const itemStart = parseInt(
-              window.getComputedStyle(item).gridRowStart
-            );
-            if (itemStart >= dropRowStart) {
-              const itemDuration =
-                parseInt(window.getComputedStyle(item).gridRowEnd) - itemStart;
-              if (currentRow + itemDuration <= GRID_END_ROW) {
-                item.style.gridRowStart = currentRow;
-                item.style.gridRowEnd = currentRow + itemDuration;
-                updateTimeDisplay(item);
-                currentRow += itemDuration;
-              } else {
-                item.remove();
-              }
-            }
-          });
-          draggedItem.style.gridColumn = dropCol;
+
+          // 2. Set the dragged item's new grid position
+          // This will now animate smoothly because of the CSS transition
+          draggedItem.style.gridColumnStart = dropCol; // Use gridColumnStart
           draggedItem.style.gridRowStart = dropRowStart;
           draggedItem.style.gridRowEnd = dropRowStart + dropDuration;
-          updateTimeDisplay(draggedItem);
-          adjustItemHeightToContent(draggedItem);
+
+          // 3. Call fixColumnLayout, which will animate all other items
+          fixColumnLayout(sourceCol);
           if (sourceCol !== dropCol) {
-            fixColumnLayout(sourceCol, draggedItem.id);
+            fixColumnLayout(dropCol);
           }
         });
 
@@ -1277,11 +1626,11 @@
             selectedItem.dataset.color = e.target.value;
             adjustItemHeightToContent(selectedItem);
             applyContrastToItem(selectedItem);
+            updateEventSwatches(); // Update swatches
           }
         });
 
-        const swatchContainer = document.getElementById("colorSwatches");
-        swatchContainer.addEventListener("click", (e) => {
+        eventSwatchesContainer.addEventListener("click", (e) => {
           const target = e.target.closest(".color-swatch");
           if (!target) return;
           const chosen = target.dataset.color;
@@ -1289,6 +1638,7 @@
           if (selectedItem) {
             selectedItem.style.backgroundColor = chosen;
             selectedItem.dataset.color = chosen;
+            updateEventSwatches(); // Update swatches
           }
         });
 
@@ -1303,7 +1653,8 @@
           );
           document.body.style.backgroundColor = e.target.value;
         });
-        bgSwatches.addEventListener("click", (e) => {
+
+        bgSwatchesContainer.addEventListener("click", (e) => {
           const target = e.target.closest(".color-swatch");
           if (!target) return;
           const chosen = target.dataset.color;
@@ -1315,15 +1666,76 @@
         addEventBtn.addEventListener("click", () => {
           const slot = findNextAvailableSlot();
           if (slot) {
-            createScheduleItem(
+            const newItem = createScheduleItem(
               slot.col,
               slot.startRow,
               2,
               "New Event",
               colorPicker.value
             );
+
+            if (newItem) {
+              newItem.classList.add("new-pop"); // Use new-pop
+              setTimeout(() => {
+                newItem.classList.remove("new-pop");
+              }, 300); // Match animation duration
+            }
+
+            fixColumnLayout(slot.col, newItem); // Check overflow, prioritize new
+            updateEventSwatches(); // Update swatches
           } else {
             alert("No available slots!");
+          }
+        });
+
+        // UPDATED: Removed addSwatchBtn listener
+
+        addBgSwatchBtn.addEventListener("click", () => {
+          createSwatch(bgColorPicker.value, bgSwatchesContainer);
+        });
+
+        // UPDATED: Event swatches are read-only
+        eventSwatchesContainer.addEventListener("contextmenu", (e) => {
+          e.preventDefault(); // Just prevent context menu
+        });
+
+        // UPDATED: BG Swatches deletion for desktop (right-click)
+        bgSwatchesContainer.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          const target = e.target.closest(".color-swatch");
+          if (target) {
+            target.remove();
+          }
+        });
+
+        // --- NEW: BG Swatches deletion for mobile (long-press) ---
+        let touchTimer;
+        bgSwatchesContainer.addEventListener(
+          "touchstart",
+          (e) => {
+            const target = e.target.closest(".color-swatch");
+            if (!target) return;
+
+            touchTimer = setTimeout(() => {
+              e.preventDefault(); // Prevent click
+              target.remove();
+              touchTimer = null;
+            }, 750); // 750ms for a long press
+          },
+          { passive: false }
+        );
+
+        bgSwatchesContainer.addEventListener("touchend", (e) => {
+          if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+          }
+        });
+
+        bgSwatchesContainer.addEventListener("touchmove", (e) => {
+          if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
           }
         });
 
@@ -1341,13 +1753,23 @@
             });
           });
 
+          // UPDATED: No longer save event swatches
+
+          const bgColors = [];
+          bgSwatchesContainer
+            .querySelectorAll(".color-swatch")
+            .forEach((swatch) => {
+              bgColors.push(swatch.dataset.color);
+            });
+
           const data = {
             events: events,
             content: {
-              subtitle: document.querySelector(".btech").innerHTML,
-              title: document.querySelector("header h1").innerHTML,
-              version: document.getElementById("versionTag").innerHTML,
-              footer: document.querySelector("footer p").innerHTML,
+              subtitle: subtitleEl.innerHTML,
+              titleLine1: titleLine1El.innerHTML,
+              titleLine2: titleLine2El.innerHTML,
+              version: versionEl.innerHTML,
+              footer: footerEl.innerHTML,
             },
             styles: {
               bgColor: getComputedStyle(document.documentElement)
@@ -1356,6 +1778,8 @@
               cornerRadius: getComputedStyle(document.documentElement)
                 .getPropertyValue("--item-border-radius")
                 .trim(),
+              // UPDATED: Removed customEventColors
+              customBgColors: bgColors,
             },
           };
 
@@ -1376,36 +1800,72 @@
             .forEach((item) => item.remove());
 
           // Load events
-          data.events.forEach((eventData) => {
-            const duration = eventData.endRow - eventData.startRow;
-            createScheduleItem(
-              eventData.col,
-              eventData.startRow,
-              duration,
-              eventData.subject,
-              eventData.color
-            );
-          });
+          if (data.events) {
+            data.events.forEach((eventData) => {
+              const duration = eventData.endRow - eventData.startRow;
+              createScheduleItem(
+                eventData.col,
+                eventData.startRow,
+                duration,
+                eventData.subject,
+                eventData.color
+              );
+            });
+          }
 
           // Load content
-          document.querySelector(".btech").innerHTML = data.content.subtitle;
-          document.querySelector("header h1").innerHTML = data.content.title;
-          document.getElementById("versionTag").innerHTML =
-            data.content.version;
-          document.querySelector("footer p").innerHTML = data.content.footer;
+          if (data.content) {
+            subtitleEl.innerHTML =
+              data.content.subtitle || "Bachelor of Technology";
+            if (data.content.titleLine1 !== undefined) {
+              titleLine1El.innerHTML = data.content.titleLine1;
+              titleLine2El.innerHTML = data.content.titleLine2;
+            } else if (data.content.title !== undefined) {
+              const tempDiv = document.createElement("div");
+              tempDiv.innerHTML = data.content.title;
+              const line1 = tempDiv.querySelector(".title-line1");
+              const line2 = tempDiv.querySelector(".title-line2");
+              if (line1 && line2) {
+                titleLine1El.innerHTML = line1.innerHTML;
+                titleLine2El.innerHTML = line2.innerHTML;
+              } else {
+                titleLine1El.innerHTML = "data science &";
+                titleLine2El.innerHTML = "artificial intelligence";
+              }
+            }
+            versionEl.innerHTML = data.content.version || "Version 2.1.2";
+            footerEl.innerHTML = data.content.footer || "for the DSAI baddies";
+          }
 
           // Load styles
-          const bgColor = data.styles.bgColor;
-          const cornerRadius = data.styles.cornerRadius;
-          document.documentElement.style.setProperty("--bg-color", bgColor);
-          document.body.style.backgroundColor = bgColor;
-          bgColorPicker.value = rgbToHex(bgColor);
+          if (data.styles) {
+            const bgColor = data.styles.bgColor || "#0f4a38";
+            const cornerRadius = data.styles.cornerRadius || "60px"; // UPDATED default
+            document.documentElement.style.setProperty("--bg-color", bgColor);
+            document.body.style.backgroundColor = bgColor;
+            bgColorPicker.value = rgbToHex(bgColor);
 
-          document.documentElement.style.setProperty(
-            "--item-border-radius",
-            cornerRadius
-          );
-          cornerSlider.value = parseInt(cornerRadius, 10);
+            document.documentElement.style.setProperty(
+              "--item-border-radius",
+              cornerRadius
+            );
+            cornerSlider.value = parseInt(cornerRadius, 10);
+
+            // UPDATED: Auto-generate event swatches, don't load them
+            updateEventSwatches();
+
+            bgSwatchesContainer.innerHTML = ""; // Clear defaults
+            if (data.styles.customBgColors) {
+              data.styles.customBgColors.forEach((color) => {
+                createSwatch(color, bgSwatchesContainer);
+              });
+            }
+          }
+
+          // --- UPDATED: Check overflow on load ---
+          for (let i = 1; i <= 5; i++) {
+            fixColumnLayout(i);
+          }
         }
 
         saveBtn.addEventListener("click", saveTimetableData);
@@ -1448,6 +1908,12 @@
           link.click();
           document.body.classList.remove("screenshot-mode");
         });
+
+        // Initial load check
+        updateEventSwatches();
+        for (let i = 1; i <= 5; i++) {
+          checkColumnOverflow(i);
+        }
       });
     </script>
   </body>
