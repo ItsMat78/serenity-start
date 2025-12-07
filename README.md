@@ -1,6 +1,6 @@
-# Serene Start
+# Serenity Start
 
-Welcome to Serene Start, your personalized dashboard to kickstart your day with focus and intention. This application is designed to provide a calm, organized, and motivating start to your daily routine.
+Welcome to Serenity Start, your personalized dashboard to kickstart your day with focus and intention. This application is designed to provide a calm, organized, and motivating start to your daily routine.
 
 ## Core Features
 
@@ -36,7 +36,7 @@ To get a local copy up and running, follow these simple steps.
 
 1.  Clone the repo
     ```sh
-    git clone https://github.com/your_username_/Project-Name.git
+    git clone https://github.com/ItsMat78/Serene-Start.git
     ```
 2.  Install NPM packages
     ```sh
@@ -46,16 +46,6 @@ To get a local copy up and running, follow these simple steps.
     ```sh
     npm run dev
     ```
-
-## Available Scripts
-
-In the project directory, you can run:
-
-*   `npm run dev`: Runs the app in development mode.
-*   `npm run build`: Builds the app for production.
-*   `npm run start`: Starts the production server.
-*   `npm run lint`: Lints the code.
-*   `npm run typecheck`: Type-checks the code.
 
 ## Style Guidelines
 
