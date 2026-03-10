@@ -33,8 +33,10 @@ export function renderGrid() {
         bg.className = "day-bg dropzone";
         bg.dataset.day = targetDayIndex.toString();
         bg.style.gridColumn = colIndex.toString();
-        // Hug exactly this column's height
-        bg.style.gridRow = `2 / ${cumulativeRow}`;
+        // Ensure the column always extends to at least 6 PM (18 slots + row offset 2 = 20)
+        // to make dragging into empty columns easy.
+        const endRow = Math.max(20, cumulativeRow);
+        bg.style.gridRow = `2 / ${endRow}`;
         // Turn into flex column container to work natively with SortableJS
         bg.style.display = "flex";
         bg.style.flexDirection = "column";
