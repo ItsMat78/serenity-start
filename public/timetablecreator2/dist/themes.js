@@ -171,24 +171,24 @@ export const themes = {
     cyberpunk: {
         id: "cyberpunk",
         name: "Cyberpunk 2077",
-        bgColor: "#0d0221",
-        textColor: "#00ff41",
-        headerColor: "#ff003c",
-        dayBgColor: "rgba(0, 255, 65, 0.05)",
-        dayBgHover: "rgba(0, 255, 65, 0.15)",
-        uiBgColor: "rgba(13, 2, 33, 0.95)",
-        uiTextColor: "#00ff41",
+        bgColor: "#09090b",
+        textColor: "#fcee0a",
+        headerColor: "#00f0ff",
+        dayBgColor: "rgba(252, 238, 10, 0.05)",
+        dayBgHover: "rgba(252, 238, 10, 0.1)",
+        uiBgColor: "rgba(9, 9, 11, 0.95)",
+        uiTextColor: "#fcee0a",
         subjectColors: {
-            break: "#111111",
-            subject1: "#fcee0a",
+            break: "#27272a",
+            subject1: "#ff003c",
             subject2: "#00f0ff",
-            subject3: "#ff003c",
-            subject4: "#00ff41",
-            subject5: "#a03cff",
-            subject6: "#fe019a",
-            subject7: "#ff7f00",
-            subject8: "#0ff0fc",
-            subject9: "#b0ff00",
+            subject3: "#fcee0a",
+            subject4: "#bf00ff",
+            subject5: "#ff00a0",
+            subject6: "#00ff66",
+            subject7: "#ff5500",
+            subject8: "#00ccff",
+            subject9: "#ccff00",
             subject10: "#ff0055"
         }
     },
@@ -332,8 +332,8 @@ export function getContrastTextColor(hexColor) {
         const theme = getCurrentTheme();
         if (theme) {
             if (theme.id === "cyberpunk") {
-                DARK = "#0d0221";
-                LIGHT = "#00ff41";
+                DARK = "#09090b";
+                LIGHT = "#ffffff";
             }
             else if (theme.id === "vintage") {
                 DARK = "#111111";
@@ -346,6 +346,10 @@ export function getContrastTextColor(hexColor) {
             else if (theme.id === "midnightGlass" || theme.id === "deepSpace") {
                 DARK = "#0f172a";
                 LIGHT = "#f8fafc";
+            }
+            else if (theme.id === "monochrome") {
+                DARK = "#000000";
+                LIGHT = "#ffffff";
             }
             else {
                 LIGHT = theme.textColor;
