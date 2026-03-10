@@ -1,0 +1,25 @@
+{
+  "name": "timetablecreator2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/sortablejs": "^1.15.9",
+    "html2canvas": "^1.4.1",
+    "sortablejs": "^1.15.7",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "base64-arraybuffer": "^1.0.2",
+    "css-line-break": "^2.1.0",
+    "text-segmentation": "^1.0.3",
+    "utrie": "^1.0.2"
+  }
+}

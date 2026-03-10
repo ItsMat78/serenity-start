@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>B.Tech AI Timetable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&family=Caveat:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&family=Syne:wght@700;800&family=Cinzel+Decorative:wght@700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+    <div class="timetable-container" id="captureTarget">
+        <header>
+            <div class="subtitle-row">
+                <p class="subtitle" id="subtitleEl">Bachelor of Technology</p>
+            </div>
+            <div class="title-container">
+                <h1 class="title-line title-line1" id="titleLine1El">electronics & communication</h1>
+                <h1 class="title-line title-line2" id="titleLine2El">engineering</h1>
+            </div>
+            <p class="version-tag" id="versionTagEl">Semester 4</p>
+        </header>
+
+        <!-- Main Controls (Hidden in Screenshot) -->
+        <div class="controls-toolbar ignore-screenshot">
+            <button id="addEventBtn" class="primary-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add
+            </button>
+            <button id="undoBtn" class="icon-btn" title="Undo" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 14 4 9 9 4"></polyline>
+                    <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+                </svg>
+            </button>
+            <button id="redoBtn" class="icon-btn" title="Redo" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 14 20 9 15 4"></polyline>
+                    <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+                </svg>
+            </button>
+            <button id="clearAllBtn" class="icon-btn danger" title="Clear Grid" style="margin-left: auto;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+            <div class="secondary-actions">
+                <button id="settingsBtn" class="icon-btn" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                </button>
+                <button id="screenshotBtn" class="icon-btn" title="Screenshot Export Options">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                        </path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </button>
+                <button id="saveBtn" class="icon-btn" title="Save">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                </button>
+                <button id="loadBtn" class="icon-btn" title="Load">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </button>
+                <input type="file" id="loadFile" accept=".json" style="display: none" />
+            </div>
+        </div>
+
+        <!-- Quick Add Tray (Presets) -->
+        <div class="preset-tray ignore-screenshot" id="presetTray">
+            <!-- Populated by JS based on theme -->
+            <p class="tray-label">Quick Add:</p>
+            <div class="preset-scroll">
+                <button class="preset-btn" data-subject="Break" data-color-key="break">Break</button>
+                <button class="preset-btn" data-subject="Data Structures" data-color-key="subject1">Data
+                    Structures</button>
+                <button class="preset-btn" data-subject="DBMS" data-color-key="subject2">DBMS</button>
+                <button class="preset-btn" data-subject="Robotics" data-color-key="subject3">Robotics</button>
+            </div>
+        </div>
+
+        <!-- Timetable Grid -->
+        <div class="timetable-grid" id="timetableGrid">
+            <div class="day-header" data-day="0" style="grid-column: 1; grid-row: 1">Mon</div>
+            <div class="day-header" data-day="1" style="grid-column: 2; grid-row: 1">Tue</div>
+            <div class="day-header" data-day="2" style="grid-column: 3; grid-row: 1">Wed</div>
+            <div class="day-header" data-day="3" style="grid-column: 4; grid-row: 1">Thu</div>
+            <div class="day-header" data-day="4" style="grid-column: 5; grid-row: 1">Fri</div>
+
+            <div class="day-bg dropzone" data-day="0" style="grid-column: 1; grid-row: 2 / 18"></div>
+            <div class="day-bg dropzone" data-day="1" style="grid-column: 2; grid-row: 2 / 18"></div>
+            <div class="day-bg dropzone" data-day="2" style="grid-column: 3; grid-row: 2 / 18"></div>
+            <div class="day-bg dropzone" data-day="3" style="grid-column: 4; grid-row: 2 / 18"></div>
+            <div class="day-bg dropzone" data-day="4" style="grid-column: 5; grid-row: 2 / 18"></div>
+
+            <!-- Events will be mapped here by Sortable/JavaScript -->
+        </div>
+
+        <footer>
+            <p id="footerEl">for the DSAI baddies</p>
+        </footer>
+    </div>
+
+    <!-- Bottom Sheet / Editor Modal -->
+    <div id="eventEditorOverlay" class="modal-overlay ignore-screenshot"></div>
+    <div id="eventEditorSheet" class="bottom-sheet ignore-screenshot">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <h2 id="editorTitle">Edit Event</h2>
+            <button id="deleteEventBtn" class="danger-icon-btn" title="Delete Event">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="sheet-body">
+            <div class="form-group">
+                <label for="eventSubject">Subject</label>
+                <input type="text" id="eventSubject" placeholder="e.g., Database Systems" autocomplete="off" />
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="eventDuration">Duration (Hours)</label>
+                    <select id="eventDuration">
+                        <option value="1">0.5 Hour</option>
+                        <option value="2">1.0 Hour</option>
+                        <option value="3">1.5 Hours</option>
+                        <option value="4">2.0 Hours</option>
+                        <option value="5">2.5 Hours</option>
+                        <option value="6">3.0 Hours</option>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <label>Color</label>
+                    <div class="color-picker-trigger" id="colorPickerTrigger">
+                        <div class="color-preview" id="colorPreviewBox"></div>
+                        <input type="color" id="eventColor"
+                            style="opacity: 0; position: absolute; pointer-events: none" />
+                        <span class="color-name">Custom</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Suggested Colors</label>
+                <div class="theme-swatch-rack" id="editorSwatches">
+                    <!-- Theme colors injected here -->
+                </div>
+            </div>
+        </div>
+        <div class="sheet-footer" style="display:flex; flex-direction: column; gap: 12px;">
+            <label class="update-all-label"
+                style="display:flex; align-items:center; gap:8px; font-weight:normal; text-transform:none; cursor:pointer;">
+                <input type="checkbox" id="updateAllCheck" checked /> Update all matching instances
+            </label>
+            <div style="display:flex; gap:12px; width: 100%;">
+                <button id="cancelEditBtn" class="outline-btn" style="flex:1;">Cancel</button>
+                <button id="saveEditBtn" class="primary-btn" style="flex:1;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Editor Modal (Simple) -->
+    <div id="headerEditorModal" class="modal ignore-screenshot">
+        <div class="modal-content">
+            <h3>Edit Text</h3>
+            <input type="text" id="editSubtitle" placeholder="Subtitle" />
+            <input type="text" id="editTitle1" placeholder="Title Line 1" />
+            <input type="text" id="editTitle2" placeholder="Title Line 2" />
+            <input type="text" id="editVersion" placeholder="Version" />
+            <input type="text" id="editFooter" placeholder="Footer" />
+            <div class="modal-actions">
+                <button id="cancelHeaderEdit" class="outline-btn">Cancel</button>
+                <button id="saveHeaderEdit" class="primary-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div id="exportModalOverlay" class="modal-overlay ignore-screenshot"></div>
+    <div id="exportModalDialog" class="bottom-sheet ignore-screenshot">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <h2 id="exportTitle">Export Timetable</h2>
+            <button id="closeExportBtn" class="danger-icon-btn" title="Cancel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="sheet-content">
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; opacity: 0.8;">Select the physical
+                bounds for the high-res capture layer.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="primary-btn export-trigger" data-res="auto" style="width: 100%; padding: 14px;">
+                    Auto Crop (Widget Form)
+                </button>
+                <button class="outline-btn export-trigger" data-res="1080x2400" style="width: 100%; padding: 14px;">
+                    1080 x 2400 (Phone Wallpaper)
+                </button>
+                <button class="outline-btn export-trigger" data-res="1080x1920" style="width: 100%; padding: 14px;">
+                    1080 x 1920 (Standard HD)
+                </button>
+            </div>
+            <div id="exportLoadingSpinner" style="display: none; text-align: center; margin-top: 20px; opacity: 0.7;">
+                <i>Rendering high-dpi canvas...</i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="settings-panel ignore-screenshot">
+        <div class="settings-header">
+            <h3>appearance</h3>
+            <button id="closeSettingsBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-group">
+                <label>theme</label>
+                <div class="theme-selector" id="themeSelector">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            <div class="setting-group">
+                <label for="cornerRounding">corner rounding</label>
+                <input type="range" id="cornerRounding" min="0" max="60" value="60">
+            </div>
+            <div class="setting-group">
+                <label>visible days</label>
+                <div class="checkbox-group" id="visibleDaysCheckboxes">
+                    <label><input type="checkbox" value="0" checked> Mon</label>
+                    <label><input type="checkbox" value="1" checked> Tue</label>
+                    <label><input type="checkbox" value="2" checked> Wed</label>
+                    <label><input type="checkbox" value="3" checked> Thu</label>
+                    <label><input type="checkbox" value="4" checked> Fri</label>
+                    <label><input type="checkbox" value="5"> Sat</label>
+                    <label><input type="checkbox" value="6"> Sun</label>
+                </div>
+                <div class="setting-group">
+                    <label>lunch break</label>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                        <label
+                            style="display:flex; align-items:center; gap:8px; font-weight:normal; font-size:0.9rem; cursor:pointer;">
+                            <input type="checkbox" id="enableLunchToggle"> Show Lunch Line
+                        </label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="time" id="lunchStartTimeInput"
+                                style="padding:4px; border:1px solid var(--ui-border); border-radius:4px;"
+                                value="13:00">
+                            <span style="font-size:0.8rem; opacity:0.7;">start time</span>
+                        </div>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <select id="lunchDurationInput"
+                                style="padding:4px; border:1px solid var(--ui-border); border-radius:4px;">
+                                <option value="30">30 mins</option>
+                                <option value="60" selected>60 mins</option>
+                                <option value="90">90 mins</option>
+                            </select>
+                            <span style="font-size:0.8rem; opacity:0.7;">duration</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="editHeaderBtn">header text</label>
+                    <button id="editHeaderBtn" class="outline-btn">edit headers</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- The bundled app output -->
+        <!-- Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        <script type="module" src="./dist/app.js"></script>
+</body>
+
+</html>

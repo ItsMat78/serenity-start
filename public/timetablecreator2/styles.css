@@ -1,0 +1,1072 @@
+/* Font-face declarations for locally available fonts */
+@font-face {
+  font-family: "NeueMetanaNext";
+  font-style: normal;
+  font-weight: 600;
+  src: url("./NeueMetanaNext-SemiBold.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Different Beginnings";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./Different Beginning Demo.ttf") format("truetype"),
+    local("Different Beginning Demo Regular"),
+    local("Different Beginnings Regular");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Canva Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./canva-sans-regular.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "The Seasons";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./Fontspring-DEMO-theseasons-reg.otf") format("opentype");
+  font-display: swap;
+}
+
+:root {
+  /* Dynamic Theme Variables (Updated by JS) */
+  --bg-color: #0f4a38;
+  --text-color: #e8f2d9;
+  --header-color: #d9e47a;
+  --text-dark: #2c3e50;
+  --day-bg-color: rgba(0, 0, 0, 0.12);
+  --day-bg-hover: rgba(255, 255, 255, 0.05);
+
+  /* Core UI Geometry */
+  --item-border-radius: 60px;
+  --grid-row-height: 56px;
+  --grid-row-gap: 6px;
+
+  /* Modal / UI Colors */
+  --ui-bg: rgba(255, 255, 255, 0.95);
+  --ui-text: #1a1a1a;
+  --ui-border: rgba(0, 0, 0, 0.1);
+  --danger-color: #e74c3c;
+}
+
+body {
+  font-family: var(--theme-font, "Canva Sans", "Canva Sans Regular", sans-serif);
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* Better for mobile scrolling */
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem 0.5rem 5rem;
+  /* Extra padding at bottom for scrolling */
+  box-sizing: border-box;
+  transition: background-color 0.4s ease;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Main Container
+   ========================================================================== */
+.timetable-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 1.2rem;
+  box-sizing: border-box;
+  position: relative;
+  background-color: var(--bg-color);
+  /* For screenshot rendering */
+  transition: background-color 0.4s ease;
+}
+
+header {
+  color: var(--header-color);
+  margin-bottom: 1.5rem;
+  position: relative;
+  text-align: left;
+}
+
+header .subtitle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+header .subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  font-family: var(--theme-font, "Playfair Display", serif);
+  text-transform: none;
+}
+
+header .title-container {
+  margin: 1.5rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+header h1.title-line {
+  font-family: "NeueMetanaNext", "Syne", "Cinzel Decorative", sans-serif;
+  font-weight: 600;
+  margin: 0;
+  padding-bottom: 6px;
+  /* Prevent ascender/descender clipping */
+  line-height: 1.2;
+  display: block;
+  word-break: break-word;
+}
+
+header h1.title-line1 {
+  color: var(--header-color);
+  font-size: 1.8rem;
+  opacity: 1;
+}
+
+header h1.title-line2 {
+  color: var(--text-color);
+  font-size: 2.5rem;
+  margin-top: 2px;
+}
+
+.version-tag {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: var(--theme-font, "Playfair Display", serif);
+  margin: 0;
+}
+
+/* ==========================================================================
+   Toolbar and Controls
+   ========================================================================== */
+.controls-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 10px;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 6px;
+  border-radius: 14px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+  outline: none;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+/* ==========================================================================
+   Desktop PC / Large Screen Layout
+   ========================================================================== */
+@media (min-width: 1000px) {
+  body {
+    padding-right: 0;
+    /* Removing offset to fix true visually centering on desktop */
+  }
+
+  /* Dock Settings Sidebar */
+  .settings-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    bottom: 20px;
+    left: auto;
+    width: 320px;
+    border-radius: 24px;
+    transform: translateX(120%) translateY(0);
+    /* Override mobile translateY */
+    border: 1px solid var(--ui-border);
+    max-height: calc(100vh - 40px);
+  }
+
+  .settings-panel.open {
+    transform: translateX(0) translateY(0);
+  }
+
+  /* Dock Event Sheet */
+  .bottom-sheet {
+    right: 20px;
+    top: 20px;
+    bottom: 20px;
+    left: auto;
+    width: 320px;
+    border-radius: 24px;
+    transform: translateX(120%) translateY(0);
+    max-height: calc(100vh - 40px);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .bottom-sheet.active {
+    transform: translateX(0) translateY(0);
+  }
+
+  .sheet-handle {
+    display: none;
+  }
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+.primary-btn {
+  background-color: var(--header-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-grow: 1;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.icon-btn {
+  background: transparent;
+  color: var(--text-color);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.outline-btn {
+  background: transparent;
+  color: var(--ui-text);
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.danger-icon-btn {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--danger-color);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Quick Add Tray
+   ========================================================================== */
+.preset-tray {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.tray-label {
+  font-size: 0.8rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.preset-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  /* for scrollbar */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.preset-scroll::-webkit-scrollbar {
+  display: none;
+  /* Chrome */
+}
+
+.preset-btn {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ==========================================================================
+   Settings Panel
+   ========================================================================== */
+.settings-panel {
+  display: block;
+  /* Removed none to allow CSS transitions */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ui-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  color: var(--ui-text);
+  text-align: left;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 990;
+
+  /* Mobile Defaults (Bottom Sheet Style) */
+  top: auto;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+  visibility: hidden;
+  opacity: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.settings-panel input,
+.settings-panel select {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+}
+
+.settings-panel select option {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-panel.open {
+  transform: translateY(0);
+  visibility: visible;
+  opacity: 1;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 8px;
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-family: "The Seasons", serif;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.setting-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-group label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  color: inherit;
+}
+
+.theme-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.theme-option-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  height: 60px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  user-select: none;
+}
+
+.theme-option-card .theme-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-option-card .theme-palette {
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.theme-option-card .swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-option-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.theme-option-card.active {
+  transform: scale(1.02);
+  border-width: 3px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ==========================================================================
+   Timetable Grid
+   ========================================================================== */
+.timetable-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: var(--grid-row-height);
+  gap: var(--grid-row-gap) 4px;
+  position: relative;
+}
+
+.lunch-line {
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  height: 0;
+  border-top: 3px dashed var(--danger-color);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.lunch-label {
+  position: absolute;
+  right: 15px;
+  top: -12px;
+  background: var(--bg-color);
+  color: var(--danger-color);
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: 1px solid var(--danger-color);
+}
+
+.day-header {
+  font-weight: 700;
+  color: var(--text-color);
+  padding-bottom: 4px;
+  font-size: 1.2rem;
+  font-family: "The Seasons", "FSP DEMO - The Seasons Regular", "Playfair Display", serif;
+}
+
+.day-bg {
+  background: var(--day-bg-color);
+  border-radius: var(--item-border-radius);
+  padding-bottom: 25px;
+  box-sizing: content-box;
+  z-index: 0;
+  transition: background-color 0.2s ease;
+}
+
+.day-bg.drag-over {
+  background: var(--day-bg-hover);
+}
+
+/* ==========================================================================
+   Schedule Item Blocks
+   ========================================================================== */
+.schedule-item {
+  position: relative;
+  padding: 10px 2px;
+  border-radius: var(--item-border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: grab;
+  min-height: 25px;
+  grid-column-end: span 1;
+  overflow: hidden;
+  box-sizing: border-box;
+  touch-action: none;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: flex 0.2s ease, height 0.2s ease, max-height 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.schedule-item:active {
+  cursor: grabbing;
+}
+
+.schedule-item.sortable-ghost {
+  opacity: 0.4;
+}
+
+.schedule-item.sortable-drag {
+  opacity: 1 !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 100;
+}
+
+/* Pop-in animation for new items */
+@keyframes popIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Theme Specific Structural Overrides (Data-Theme Hooks)
+   ========================================================================== */
+
+/* NEOBRUTALISM */
+html[data-theme="neobrutalism"] {
+  --theme-font: "JetBrains Mono", monospace;
+}
+
+html[data-theme="neobrutalism"] .timetable-container {
+  border: 4px solid #111;
+  box-shadow: 8px 8px 0px #111;
+  border-radius: 4px;
+}
+
+html[data-theme="neobrutalism"] .schedule-item {
+  border: 3px solid #111;
+  box-shadow: 4px 4px 0px #111;
+  font-family: inherit;
+  font-weight: 900;
+}
+
+html[data-theme="neobrutalism"] .day-bg {
+  border: 2px dashed #111;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Strip border for clean screenshots without patterned dashed lines */
+html[data-theme="neobrutalism"] body.capture-mode .day-bg {
+  border: none !important;
+}
+
+html[data-theme="neobrutalism"] .primary-btn,
+html[data-theme="neobrutalism"] .icon-btn {
+  border: 2px solid #111;
+  box-shadow: 3px 3px 0px #111;
+  border-radius: 4px;
+}
+
+/* DEEP SPACE */
+html[data-theme="deepSpace"] .timetable-container {
+  background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 60%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 50px rgba(139, 92, 246, 0.15);
+}
+
+html[data-theme="deepSpace"] .schedule-item {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="deepSpace"] header h1.title-line1 {
+  text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+}
+
+/* CLOUD SOFT */
+html[data-theme="cloudSoft"] .timetable-container {
+  box-shadow: 0 20px 60px rgba(0, 150, 255, 0.08);
+}
+
+html[data-theme="cloudSoft"] .schedule-item {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+  border: 2px solid #ffffff;
+}
+
+html[data-theme="cloudSoft"] .day-header {
+  font-family: "Canva Sans", sans-serif;
+  letter-spacing: 1px;
+}
+
+/* MONOCHROME */
+html[data-theme="monochrome"] .timetable-container {
+  border: 1px solid #e5e5e5;
+  box-shadow: none;
+}
+
+html[data-theme="monochrome"] .schedule-item {
+  border: 1px solid #e5e5e5;
+  box-shadow: none;
+  font-family: "Courier New", Courier, monospace;
+}
+
+html[data-theme="monochrome"] * {
+  font-family: "Courier New", Courier, monospace !important;
+}
+
+/* CYBERPUNK */
+html[data-theme="cyberpunk"] {
+  --theme-font: "Orbitron", sans-serif;
+}
+
+html[data-theme="cyberpunk"] .timetable-container {
+  border: 2px solid #00ff41;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.5), inset 0 0 20px rgba(0, 255, 65, 0.2);
+  background: repeating-linear-gradient(0deg, #0d0221, #0d0221 2px, #000 2px, #000 4px);
+}
+
+html[data-theme="cyberpunk"] .schedule-item {
+  border: 1px solid #00f0ff;
+  box-shadow: 2px 2px 0px #ff003c;
+  font-family: inherit;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+html[data-theme="cyberpunk"] .day-header {
+  font-family: inherit;
+  color: #fcee0a;
+  text-shadow: 2px 2px #ff003c;
+  text-transform: uppercase;
+}
+
+/* GLASSMORPHISM */
+html[data-theme="glassmorphism"] .timetable-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border-radius: 20px;
+}
+
+html[data-theme="glassmorphism"] body {
+  background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+html[data-theme="glassmorphism"] .schedule-item {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #1f2937 !important;
+  font-weight: 700;
+}
+
+/* VINTAGE ACADEMIC */
+html[data-theme="vintage"] {
+  --theme-font: "Caveat", cursive;
+}
+
+html[data-theme="vintage"] .timetable-container {
+  background-color: #f4ecd8;
+  background-image: repeating-linear-gradient(transparent, transparent 23px, #e1d3bdf0 24px);
+  border: 1px solid #d2c49e;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+}
+
+html[data-theme="vintage"] .schedule-item {
+  border-left: 4px solid #5d4037;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  font-family: var(--theme-font, inherit);
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+}
+
+html[data-theme="vintage"] .day-header {
+  font-family: var(--theme-font, inherit);
+  border-bottom: 2px solid #5d4037;
+}
+
+.schedule-item.anim-enter {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.schedule-item .time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.schedule-item .subject {
+  font-size: 1rem;
+  line-height: 1.2;
+  font-weight: 700;
+  display: block;
+  word-wrap: break-word;
+  /* Let JS shrinker handle severe horizontal overflow without shredding letters */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  pointer-events: none;
+  /* Let clicks pass through to card */
+}
+
+.schedule-item.is-small .subject {
+  font-size: 0.8rem;
+  margin-top: 12px;
+  /* Push below time */
+}
+
+.schedule-item.is-small .time {
+  top: 2px;
+  font-size: 0.65rem;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  cursor: ns-resize;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.resize-handle::after {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.resize-handle:hover::after {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.resize-handle:active::after {
+  background: #fff;
+}
+
+/* ==========================================================================
+   Bottom Sheet Modal
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  border-radius: 24px 24px 0 0;
+  padding: 1.5rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  z-index: 1001;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s, visibility 0.4s;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bottom-sheet.active {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  margin: -0.5rem auto 1rem;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sheet-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.half {
+  flex: 1;
+}
+
+label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ui-border);
+  background: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.color-picker-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.color-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-swatch-rack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.theme-swatch:hover {
+  transform: scale(1.1);
+}
+
+.theme-swatch.selected {
+  border-color: #333;
+}
+
+.sheet-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+/* ==========================================================================
+   Basic Modal (For Text Edits)
+   ========================================================================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+footer {
+  color: var(--header-color);
+  margin-top: 1.5rem;
+  font-family: "The Seasons", "FSP DEMO - The Seasons Regular", "Playfair Display", serif;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   Screenshot Mode Overrides (Minimal Canvas Scaling)
+   ========================================================================== */
+body.screenshot-mode {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--bg-color);
+}
+
+body.screenshot-mode .ignore-screenshot {
+  display: none !important;
+}
+
+body.screenshot-mode .timetable-container {
+  width: 540px;
+  max-width: 540px;
+  min-height: auto;
+  height: max-content;
+  margin: 0;
+  padding: 40px 20px;
+  /* Provides pure space around the grid without scaling fonts */
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.screenshot-mode .timetable-grid {
+  flex-grow: 0;
+  /* Stop flexbox from distributing empty 2400px wallpaper space between rows natively */
+  align-content: start;
+  justify-content: center;
+  grid-template-rows: auto auto;
+}
+
+body.screenshot-mode footer {
+  padding-top: 20px;
+}
