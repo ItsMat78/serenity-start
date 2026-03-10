@@ -685,6 +685,11 @@ html[data-theme="monochrome"] .schedule-item {
   font-family: "Courier New", Courier, monospace;
 }
 
+html[data-theme="monochrome"] .schedule-item>* {
+  color: #fff !important;
+  mix-blend-mode: difference;
+}
+
 html[data-theme="monochrome"] * {
   font-family: "Courier New", Courier, monospace !important;
 }
