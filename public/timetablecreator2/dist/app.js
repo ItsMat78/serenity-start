@@ -5,6 +5,18 @@ import { initializeDragAndDrop } from "./dragDrop.js";
 import { initializeEventEditor } from "./eventEditor.js";
 import { initializeStorage } from "./storage.js";
 import { initializeScreenshot } from "./screenshot.js";
+function getNextAvailableDayIndex(eventDuration) {
+    for (const dayIndex of appState.settings.visibleDays) {
+        const dayData = appState.days[dayIndex];
+        if (!dayData)
+            continue;
+        const totalDuration = dayData.events.reduce((sum, e) => sum + e.duration, 0);
+        if (totalDuration + eventDuration <= 18) {
+            return dayIndex;
+        }
+    }
+    return appState.settings.visibleDays[0] ?? 0;
+}
 function initApp() {
     // 1. Setup default theme & render swatches in settings
     applyTheme("evergreen");
@@ -30,11 +42,12 @@ function initApp() {
     setupPresetTray();
     // Add generic event button
     document.getElementById("addEventBtn")?.addEventListener("click", () => {
-        // Create a default event on Monday 9am
-        appState.addEvent(0, {
+        const duration = 2; // 1 hour
+        const targetDay = getNextAvailableDayIndex(duration);
+        appState.addEvent(targetDay, {
             id: "evt_" + Date.now(),
             subject: "New Event",
-            duration: 2, // 1 hour
+            duration: duration,
             colorHex: themes[appState.settings.themeId]?.subjectColors.subject1 || "#9bc55f"
         });
         renderGrid();
@@ -244,13 +257,12 @@ function setupPresetTray() {
             return;
         const subject = btn.dataset.subject;
         const colorHex = btn.dataset.color;
-        // Find first available gap. For now, since auto-packing to top 
-        // is default behavior, just add it to Monday or the day with least elements.
-        // Better: Add it to Monday (dayIndex 0).
-        appState.addEvent(0, {
+        const duration = 2; // 1 hour
+        const targetDay = getNextAvailableDayIndex(duration);
+        appState.addEvent(targetDay, {
             id: "evt_" + Date.now() + Math.floor(Math.random() * 100),
             subject,
-            duration: 2, // 1 hour
+            duration: duration,
             colorHex
         });
         renderGrid();
