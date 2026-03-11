@@ -785,7 +785,7 @@ html[data-theme="vintage"] .day-header {
 }
 
 .schedule-item .subject {
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.2;
   font-weight: 700;
   display: block;
@@ -1048,7 +1048,8 @@ body.screenshot-mode {
   background: var(--bg-color);
 }
 
-body.screenshot-mode .ignore-screenshot {
+body.screenshot-mode .ignore-screenshot,
+body.screenshot-mode .resize-handle {
   display: none !important;
 }
 

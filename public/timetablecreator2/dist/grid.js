@@ -33,9 +33,9 @@ export function renderGrid() {
         bg.className = "day-bg dropzone";
         bg.dataset.day = targetDayIndex.toString();
         bg.style.gridColumn = colIndex.toString();
-        // Ensure the column always extends to at least 6 PM (18 slots + row offset 2 = 20)
+        // Ensure the column always extends to at least 6 PM (16 slots + row offset 2 = 18)
         // to make dragging into empty columns easy.
-        const endRow = Math.max(20, cumulativeRow);
+        const endRow = Math.max(18, cumulativeRow);
         bg.style.gridRow = `2 / ${endRow}`;
         // Turn into flex column container to work natively with SortableJS
         bg.style.display = "flex";
@@ -92,8 +92,8 @@ export function renderGrid() {
             bg.appendChild(itemEl);
             currentRow += evt.duration;
         });
-        // Overflow Warning Background Color (If a day breaches standard 6pm shift)
-        if (totalDurationThisDay > 18) {
+        // Overflow Warning Background Color (If a day breaches standard 6pm shift, i.e. 16 valid slots + 1 hr lunch = 9 hours)
+        if (totalDurationThisDay > 16) {
             bg.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
             bg.style.border = "1px solid rgba(239, 68, 68, 0.3)";
         }

@@ -11,7 +11,7 @@ function getNextAvailableDayIndex(eventDuration) {
         if (!dayData)
             continue;
         const totalDuration = dayData.events.reduce((sum, e) => sum + e.duration, 0);
-        if (totalDuration + eventDuration <= 18) {
+        if (totalDuration + eventDuration <= 16) {
             return dayIndex;
         }
     }
