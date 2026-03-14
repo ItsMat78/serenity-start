@@ -134,7 +134,7 @@ function setupHeaderEditors() {
     const t1 = document.getElementById("editTitle1") as HTMLInputElement;
     const t2 = document.getElementById("editTitle2") as HTMLInputElement;
     const vers = document.getElementById("editVersion") as HTMLInputElement;
-    const foot = document.getElementById("editFooter") as HTMLInputElement;
+    const foot = document.getElementById("editFooter") as HTMLTextAreaElement;
 
     // Output Elements
     const subEl = document.getElementById("subtitleEl")!;

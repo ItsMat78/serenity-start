@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&family=Caveat:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&family=Syne:wght@700;800&family=Cinzel+Decorative:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700&family=Syne:wght@700;800&family=Cinzel+Decorative:wght@700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -194,7 +194,7 @@
             <input type="text" id="editTitle1" placeholder="Title Line 1" />
             <input type="text" id="editTitle2" placeholder="Title Line 2" />
             <input type="text" id="editVersion" placeholder="Version" />
-            <input type="text" id="editFooter" placeholder="Footer" />
+            <textarea id="editFooter" placeholder="Footer (use Enter for line breaks)" rows="2" style="resize: vertical; width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--ui-border); background: #fff; font-family: inherit; font-size: 1rem; box-sizing: border-box;"></textarea>
             <div class="modal-actions">
                 <button id="cancelHeaderEdit" class="outline-btn">Cancel</button>
                 <button id="saveHeaderEdit" class="primary-btn">Save</button>
@@ -222,11 +222,20 @@
                 <button class="primary-btn export-trigger" data-res="auto" style="width: 100%; padding: 14px;">
                     Auto Crop (Widget Form)
                 </button>
-                <button class="outline-btn export-trigger" data-res="1080x2400" style="width: 100%; padding: 14px;">
-                    1080 x 2400 (Phone Wallpaper)
+                <button class="outline-btn export-trigger" data-res="1290x2796" style="width: 100%; padding: 14px;">
+                    iPhone 15 Pro Max
+                </button>
+                <button class="outline-btn export-trigger" data-res="1179x2556" style="width: 100%; padding: 14px;">
+                    iPhone 15 Pro
+                </button>
+                <button class="outline-btn export-trigger" data-res="1440x3120" style="width: 100%; padding: 14px;">
+                    Galaxy S24 Ultra
                 </button>
                 <button class="outline-btn export-trigger" data-res="1080x1920" style="width: 100%; padding: 14px;">
-                    1080 x 1920 (Standard HD)
+                    Standard HD Mobile
+                </button>
+                <button class="outline-btn export-trigger" data-res="1080x1080" style="width: 100%; padding: 14px;">
+                    Instagram Square
                 </button>
             </div>
             <div id="exportLoadingSpinner" style="display: none; text-align: center; margin-top: 20px; opacity: 0.7;">
@@ -298,7 +307,7 @@
         <!-- The bundled app output -->
         <!-- Libraries -->
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.4.5/dist/dom-to-image-more.min.js"></script>
         <script type="module" src="./dist/app.js"></script>
 </body>
 

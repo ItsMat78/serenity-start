@@ -7,15 +7,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Different Beginnings";
-  font-style: normal;
-  font-weight: 400;
-  src: url("./Different Beginning Demo.ttf") format("truetype"),
-    local("Different Beginning Demo Regular"),
-    local("Different Beginnings Regular");
-  font-display: swap;
-}
 
 @font-face {
   font-family: "Canva Sans";
@@ -109,7 +100,7 @@ header .subtitle {
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   color: var(--text-color);
-  font-family: var(--theme-font, "Playfair Display", serif);
+  font-family: var(--theme-font, "Lexend", sans-serif);
   text-transform: none;
 }
 
@@ -153,7 +144,7 @@ header h1.title-line2 {
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 4px 8px;
   border-radius: 8px;
-  font-family: var(--theme-font, "Playfair Display", serif);
+  font-family: var(--theme-font, "Lexend", sans-serif);
   margin: 0;
 }
 
@@ -162,6 +153,7 @@ header h1.title-line2 {
    ========================================================================== */
 .controls-toolbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
@@ -170,6 +162,7 @@ header h1.title-line2 {
 
 .secondary-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   background: rgba(0, 0, 0, 0.15);
   padding: 6px;
@@ -532,7 +525,7 @@ button:active {
   color: var(--text-color);
   padding-bottom: 4px;
   font-size: 1.2rem;
-  font-family: "The Seasons", "FSP DEMO - The Seasons Regular", "Playfair Display", serif;
+  font-family: "The Seasons", "FSP DEMO - The Seasons Regular", "Lexend", sans-serif;
 }
 
 .day-bg {
@@ -605,123 +598,128 @@ button:active {
    ========================================================================== */
 
 /* NEOBRUTALISM */
-html[data-theme="neobrutalism"] {
+.timetable-container[data-theme="neobrutalism"] {
   --theme-font: "JetBrains Mono", monospace;
 }
 
-html[data-theme="neobrutalism"] .timetable-container {
+.timetable-container[data-theme="neobrutalism"] {
   border: 4px solid #111;
   box-shadow: 8px 8px 0px #111;
   border-radius: 4px;
 }
 
-html[data-theme="neobrutalism"] .schedule-item {
+.timetable-container[data-theme="neobrutalism"] .schedule-item {
   border: 3px solid #111;
   box-shadow: 4px 4px 0px #111;
   font-family: inherit;
   font-weight: 900;
 }
 
-html[data-theme="neobrutalism"] .day-bg {
+.timetable-container[data-theme="neobrutalism"] .day-bg {
   border: 2px dashed #111;
   background-color: transparent;
   border-radius: 0;
 }
 
 /* Strip border for clean screenshots without patterned dashed lines */
-html[data-theme="neobrutalism"] body.capture-mode .day-bg {
+.timetable-container[data-theme="neobrutalism"].screenshot-mode .day-bg {
   border: none !important;
 }
 
-html[data-theme="neobrutalism"] .primary-btn,
-html[data-theme="neobrutalism"] .icon-btn {
+.timetable-container[data-theme="neobrutalism"] .primary-btn,
+.timetable-container[data-theme="neobrutalism"] .icon-btn {
   border: 2px solid #111;
   box-shadow: 3px 3px 0px #111;
   border-radius: 4px;
 }
 
 /* DEEP SPACE */
-html[data-theme="deepSpace"] .timetable-container {
+.timetable-container[data-theme="deepSpace"] {
   background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 60%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 50px rgba(139, 92, 246, 0.15);
 }
 
-html[data-theme="deepSpace"] .schedule-item {
+.timetable-container[data-theme="deepSpace"] .schedule-item {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-html[data-theme="deepSpace"] header h1.title-line1 {
+.timetable-container[data-theme="deepSpace"] header h1.title-line1 {
   text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
 }
 
 /* CLOUD SOFT */
-html[data-theme="cloudSoft"] .timetable-container {
+.timetable-container[data-theme="cloudSoft"] {
   box-shadow: 0 20px 60px rgba(0, 150, 255, 0.08);
 }
 
-html[data-theme="cloudSoft"] .schedule-item {
+.timetable-container[data-theme="cloudSoft"] .schedule-item {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
   border: 2px solid #ffffff;
 }
 
-html[data-theme="cloudSoft"] .day-header {
+.timetable-container[data-theme="cloudSoft"] .day-header {
   font-family: "Canva Sans", sans-serif;
   letter-spacing: 1px;
 }
 
 /* MONOCHROME */
-html[data-theme="monochrome"] .timetable-container {
+.timetable-container[data-theme="monochrome"] {
   border: 1px solid #e5e5e5;
   box-shadow: none;
 }
 
-html[data-theme="monochrome"] .schedule-item {
+.timetable-container[data-theme="monochrome"] .schedule-item {
   border: 1px solid #e5e5e5;
   box-shadow: none;
   font-family: "Courier New", Courier, monospace;
 }
 
-html[data-theme="monochrome"] .schedule-item>* {
+.timetable-container[data-theme="monochrome"] .schedule-item>* {
   color: #fff !important;
   mix-blend-mode: difference;
 }
 
-html[data-theme="monochrome"] * {
+.timetable-container[data-theme="monochrome"] * {
   font-family: "Courier New", Courier, monospace !important;
 }
 
 /* CYBERPUNK */
-html[data-theme="cyberpunk"] {
+.timetable-container[data-theme="cyberpunk"] {
   --theme-font: "Orbitron", sans-serif;
 }
 
-html[data-theme="cyberpunk"] .timetable-container {
+.timetable-container[data-theme="cyberpunk"] {
   border: 2px solid #00ff41;
   box-shadow: 0 0 20px rgba(0, 255, 65, 0.5), inset 0 0 20px rgba(0, 255, 65, 0.2);
   background: repeating-linear-gradient(0deg, #0d0221, #0d0221 2px, #000 2px, #000 4px);
 }
 
-html[data-theme="cyberpunk"] .schedule-item {
+.timetable-container[data-theme="cyberpunk"] .schedule-item {
   border: 1px solid #00f0ff;
   box-shadow: 2px 2px 0px #ff003c;
   font-family: inherit;
   text-transform: uppercase;
   font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
 }
 
-html[data-theme="cyberpunk"] .day-header {
+.timetable-container[data-theme="cyberpunk"] .day-header {
   font-family: inherit;
   color: #fcee0a;
   text-shadow: 2px 2px #ff003c;
   text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 1rem;
 }
 
 /* GLASSMORPHISM */
-html[data-theme="glassmorphism"] .timetable-container {
+.timetable-container[data-theme="glassmorphism"] {
+  --theme-font: "Lexend", sans-serif;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -730,26 +728,34 @@ html[data-theme="glassmorphism"] .timetable-container {
   border-radius: 20px;
 }
 
-html[data-theme="glassmorphism"] body {
+.timetable-container[data-theme="glassmorphism"] body {
   background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
 }
 
-html[data-theme="glassmorphism"] .schedule-item {
+.timetable-container[data-theme="glassmorphism"] .schedule-item {
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   color: #1f2937 !important;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.timetable-container[data-theme="glassmorphism"] .day-header {
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 1rem;
 }
 
 /* VINTAGE ACADEMIC */
-html[data-theme="vintage"] {
-  --theme-font: "Caveat", cursive;
+.timetable-container[data-theme="vintage"] {
+  --theme-font: "Lexend", sans-serif;
 }
 
-html[data-theme="vintage"] .timetable-container {
+.timetable-container[data-theme="vintage"] {
   background-color: #f4ecd8;
   background-image: repeating-linear-gradient(transparent, transparent 23px, #e1d3bdf0 24px);
   border: 1px solid #d2c49e;
@@ -757,17 +763,20 @@ html[data-theme="vintage"] .timetable-container {
   border-radius: 0;
 }
 
-html[data-theme="vintage"] .schedule-item {
+.timetable-container[data-theme="vintage"] .schedule-item {
   border-left: 4px solid #5d4037;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
   font-family: var(--theme-font, inherit);
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.05);
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
-html[data-theme="vintage"] .day-header {
+.timetable-container[data-theme="vintage"] .day-header {
   font-family: var(--theme-font, inherit);
   border-bottom: 2px solid #5d4037;
+  font-weight: 400;
+  letter-spacing: 1px;
 }
 
 .schedule-item.anim-enter {
@@ -1033,8 +1042,10 @@ select {
 footer {
   color: var(--header-color);
   margin-top: 1.5rem;
-  font-family: "The Seasons", "FSP DEMO - The Seasons Regular", "Playfair Display", serif;
+  font-family: "Lexend", sans-serif;
   font-size: 1rem;
+  white-space: pre-line;
+  text-align: center;
 }
 
 /* ==========================================================================
@@ -1049,11 +1060,14 @@ body.screenshot-mode {
 }
 
 body.screenshot-mode .ignore-screenshot,
-body.screenshot-mode .resize-handle {
+.timetable-container.screenshot-mode .ignore-screenshot,
+body.screenshot-mode .resize-handle,
+.timetable-container.screenshot-mode .resize-handle {
   display: none !important;
 }
 
-body.screenshot-mode .timetable-container {
+body.screenshot-mode .timetable-container,
+.timetable-container.screenshot-mode {
   width: 540px;
   max-width: 540px;
   min-height: auto;
@@ -1062,10 +1076,10 @@ body.screenshot-mode .timetable-container {
   padding: 40px 20px;
   /* Provides pure space around the grid without scaling fonts */
   border-radius: 0;
-  box-shadow: none;
 }
 
-body.screenshot-mode .timetable-grid {
+body.screenshot-mode .timetable-grid,
+.timetable-container.screenshot-mode .timetable-grid {
   flex-grow: 0;
   /* Stop flexbox from distributing empty 2400px wallpaper space between rows natively */
   align-content: start;

@@ -1,4 +1,23 @@
-declare const html2canvas: any;
+declare const domtoimage: any;
+import { getCurrentTheme } from "./themes.js";
+
+function generateScreenshotFilename(): string {
+    const title1 = (document.getElementById("titleLine1El") as HTMLElement)?.innerText?.trim() || "";
+    const title2 = (document.getElementById("titleLine2El") as HTMLElement)?.innerText?.trim() || "";
+    const version = (document.getElementById("versionTagEl") as HTMLElement)?.innerText?.trim() || "";
+    const themeName = getCurrentTheme()?.name || "";
+
+    const now = new Date();
+    const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    // Combine parts, filter empties, sanitize for filenames
+    const parts = [title1, title2, version, themeName, date]
+        .map(s => s.replace(/[^\w\s-]/g, "").trim())
+        .filter(Boolean)
+        .map(s => s.replace(/\s+/g, "_"));
+
+    return (parts.join("_") || "timetable") + ".png";
+}
 
 export function initializeScreenshot() {
     const screenshotBtn = document.getElementById("screenshotBtn");
@@ -30,7 +49,7 @@ export function initializeScreenshot() {
 
             if (loadingSpinner) loadingSpinner.style.display = "block";
 
-            // Add screenshot-mode class to body to trigger CSS overrides (hides controls, expands size)
+            // Add screenshot-mode class to body to trigger CSS overrides
             document.body.classList.add("screenshot-mode");
 
             // Wait a tiny bit for reflow and animations to finish
@@ -39,86 +58,113 @@ export function initializeScreenshot() {
             try {
                 const container = document.querySelector(".timetable-container") as HTMLElement;
                 if (!container) throw new Error("Could not find grid container");
+                
+                // Add screenshot context specifically to container
+                container.classList.add("screenshot-mode");
 
-                let targetWidth = 540;
-                let targetOutW = 0, targetOutH = 0;
+                const originalParent = container.parentNode;
+                const originalNextSibling = container.nextSibling;
 
-                if (resMode !== "auto") {
+                let captureTarget: HTMLElement;
+                let frame: HTMLDivElement | null = null;
+                let captureWidth: number;
+                let captureHeight: number;
+                let exportScale: number = 1;
+
+                if (resMode === "auto") {
+                    // AUTO-CROP: Capture the container directly — no frame, no extra padding.
+                    // The timetable fills the entire screenshot edge-to-edge.
+                    captureTarget = container;
+                    captureWidth = container.scrollWidth;
+                    captureHeight = container.scrollHeight;
+                    exportScale = 2; // High DPI
+                    
+                } else {
+                    // WALLPAPER / FULL DEVICE RESOLUTION — use a frame to center on canvas
+                    frame = document.createElement("div");
+                    frame.style.backgroundColor = getComputedStyle(document.body).backgroundColor;
+                    frame.style.display = "flex";
+                    frame.style.justifyContent = "center";
+                    frame.style.alignItems = "center";
+                    frame.style.boxSizing = "border-box";
+
                     const [w, h] = resMode.split("x").map(Number);
-                    targetOutW = w;
-                    targetOutH = h;
-                    targetWidth = w / 2; // Map 1080 target to 540px physical CSS bounds
-                    const targetRatio = h / w; // e.g., 2.222
+                    captureWidth = w;
+                    captureHeight = h;
+                    exportScale = 1; // 1:1 Pixel Mapping for the target device
 
-                    let currentHeight = container.scrollHeight;
+                    frame.style.width = `${captureWidth}px`;
+                    frame.style.height = `${captureHeight}px`;
+                    frame.style.position = "relative";
+                    frame.style.overflow = "hidden"; // Act exactly like a rigid phone screen
 
-                    if (currentHeight / targetWidth > targetRatio) {
-                        // Timetable is exceptionally tall. Widen the CSS box to match the target phone aspect ratio, completely eliminating horizontal padding/letterboxing.
-                        targetWidth = currentHeight / targetRatio;
-                        container.style.width = `${targetWidth}px`;
-                        container.style.maxWidth = `${targetWidth}px`;
+                    // Calculate optical scale factor so timetable perfectly fills the screen
+                    const BASE_WIDTH = 540;
+                    const timetableRawHeight = container.scrollHeight;
+                    
+                    // How much to scale it to fill width
+                    const scaleToWidth = captureWidth / BASE_WIDTH;
+                    // How much to scale it to fit height without clipping
+                    const scaleToHeight = captureHeight / timetableRawHeight;
+                    
+                    // Pick the smallest scale so it fits on screens without overflowing, keeping a 8% aesthetic safety margin
+                    const finalScale = Math.min(scaleToWidth, scaleToHeight) * 0.92;
 
-                        // Text reflows could slightly change height, recalc once
-                        currentHeight = container.scrollHeight;
-                        targetWidth = currentHeight / targetRatio;
-                        container.style.width = `${targetWidth}px`;
-                        container.style.maxWidth = `${targetWidth}px`;
+                    container.style.transform = `scale(${finalScale})`;
+                    container.style.transformOrigin = "center center";
 
-                        container.style.minHeight = `${currentHeight}px`;
-                    } else {
-                        // Force container to structurally pad if it is too short natively
-                        container.style.minHeight = `${targetWidth * targetRatio}px`;
-                        container.style.justifyContent = "space-between";
-                    }
+                    // Inject wrapper structurally
+                    if(originalParent) originalParent.insertBefore(frame, container);
+                    frame.appendChild(container);
+                    captureTarget = frame;
                 }
 
-                // Capture the full natural height, ignoring strict target boundaries so html2canvas NEVER mathematically truncates overflow.
-                const captureHeight = container.scrollHeight;
+                // Measure the actual rendered size
+                const renderWidth = captureWidth;
+                const renderHeight = resMode === "auto" ? captureTarget.scrollHeight : captureHeight;
 
-                const rawCanvas = await html2canvas(container, {
-                    width: targetWidth,
-                    windowWidth: targetWidth,
-                    height: captureHeight,
-                    windowHeight: captureHeight,
-                    scale: 2, // Up-rez 540px virtual canvas into pristine High DPI Output
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: getComputedStyle(document.body).backgroundColor,
+                // Use dom-to-image-more — it serializes the DOM into SVG foreignObject
+                // and lets the browser render it natively, so ALL CSS features work:
+                // box-shadow, mix-blend-mode, backdrop-filter, etc.
+                const dataUrl = await domtoimage.toPng(captureTarget, {
+                    width: renderWidth * exportScale,
+                    height: renderHeight * exportScale,
+                    style: {
+                        transform: `scale(${exportScale})`,
+                        transformOrigin: "top left",
+                        width: `${renderWidth}px`,
+                        height: `${renderHeight}px`,
+                    },
+                    // Filter out elements we don't want in the screenshot
+                    filter: (node: Element) => {
+                        if (node.classList && (
+                            node.classList.contains("ignore-screenshot") ||
+                            node.classList.contains("resize-handle")
+                        )) {
+                            return false;
+                        }
+                        return true;
+                    }
                 });
 
-                let finalCanvas = rawCanvas;
-
-                if (resMode !== "auto") {
-                    finalCanvas = document.createElement("canvas");
-                    finalCanvas.width = targetOutW;
-                    finalCanvas.height = targetOutH;
-                    const ctx = finalCanvas.getContext("2d");
-                    if (ctx) {
-                        ctx.fillStyle = getComputedStyle(document.body).backgroundColor || "#000";
-                        ctx.fillRect(0, 0, targetOutW, targetOutH);
-
-                        // Object-fit: contain scaling mathematics
-                        const scale = Math.min(targetOutW / rawCanvas.width, targetOutH / rawCanvas.height);
-                        const scaledW = rawCanvas.width * scale;
-                        const scaledH = rawCanvas.height * scale;
-
-                        const offsetX = (targetOutW - scaledW) / 2;
-                        const offsetY = (targetOutH - scaledH) / 2;
-
-                        // Draw cleanly centered inside rigid output resolution
-                        ctx.drawImage(rawCanvas, 0, 0, rawCanvas.width, rawCanvas.height, offsetX, offsetY, scaledW, scaledH);
+                // Cleanup & Revert DOM modifications perfectly
+                container.style.transform = "";
+                container.style.transformOrigin = "";
+                
+                if (frame) {
+                    if (originalParent) {
+                        if (originalNextSibling) {
+                            originalParent.insertBefore(container, originalNextSibling);
+                        } else {
+                            originalParent.appendChild(container);
+                        }
                     }
+                    frame.remove();
                 }
 
-                // Revert layout hacks
-                container.style.minHeight = "";
-                container.style.justifyContent = "";
-                container.style.width = "";
-                container.style.maxWidth = "";
-
                 const link = document.createElement("a");
-                link.download = "timetable.png";
-                link.href = finalCanvas.toDataURL("image/png");
+                link.download = generateScreenshotFilename();
+                link.href = dataUrl;
                 link.click();
                 closeModal();
             } catch (err) {
@@ -127,6 +173,9 @@ export function initializeScreenshot() {
             } finally {
                 // Revert DOM
                 document.body.classList.remove("screenshot-mode");
+                const cleanupContainer = document.querySelector(".timetable-container");
+                if (cleanupContainer) cleanupContainer.classList.remove("screenshot-mode");
+                
                 if (loadingSpinner) loadingSpinner.style.display = "none";
             }
         });

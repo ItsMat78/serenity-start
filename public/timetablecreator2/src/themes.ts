@@ -301,8 +301,10 @@ export function applyTheme(id: string) {
     root.style.setProperty("--ui-bg", newTheme.uiBgColor);
     root.style.setProperty("--ui-text", newTheme.uiTextColor);
 
-    // Set a data-attribute for CSS to hook into structural theme changes
     root.setAttribute("data-theme", newTheme.id);
+    document.body.setAttribute("data-theme", newTheme.id);
+    const container = document.querySelector(".timetable-container");
+    if (container) container.setAttribute("data-theme", newTheme.id);
 
     // Give the DOM a tiny specific repaint moment before doing heavy operations
     setTimeout(() => {
