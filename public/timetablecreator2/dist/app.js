@@ -172,7 +172,7 @@ function setupSettingsPanel() {
     // Corner rounding slider
     document.getElementById("cornerRounding")?.addEventListener('input', (e) => {
         const val = e.target.value;
-        document.documentElement.style.setProperty("--item-border-radius", `${val}px`);
+        document.documentElement.style.setProperty("--item-border-radius-raw", val);
     });
     // Visible Days Checkboxes
     const daysContainer = document.getElementById("visibleDaysCheckboxes");

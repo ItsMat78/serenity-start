@@ -8,9 +8,19 @@ export function renderGrid() {
     const settings = appState.settings;
 
     grid.innerHTML = "";
-
     const colCount = settings.visibleDays.length;
     grid.style.gridTemplateColumns = `repeat(${colCount}, minmax(0, 1fr))`;
+
+    // Find the global maximum row to keep columns aligned but tight
+    let globalMaxRow = 14; // Default minimum (approx 3pm)
+    settings.visibleDays.forEach(dayIndex => {
+        const dayData = appState.days[dayIndex];
+        if (!dayData) return;
+        const dayDuration = dayData.events.reduce((sum, e) => sum + e.duration, 0);
+        if (dayDuration + GRID_START_ROW > globalMaxRow) {
+            globalMaxRow = dayDuration + GRID_START_ROW;
+        }
+    });
 
     settings.visibleDays.forEach((targetDayIndex, loopIndex) => {
         const colIndex = loopIndex + 1; // 1-indexed for CSS Grid
@@ -30,9 +40,7 @@ export function renderGrid() {
         if (!dayData) return;
 
         let totalDurationThisDay = 0;
-        let cumulativeRow = GRID_START_ROW;
         dayData.events.forEach(evt => {
-            cumulativeRow += evt.duration;
             totalDurationThisDay += evt.duration;
         });
 
@@ -41,10 +49,9 @@ export function renderGrid() {
         bg.className = "day-bg dropzone";
         bg.dataset.day = targetDayIndex.toString();
         bg.style.gridColumn = colIndex.toString();
-        // Ensure the column always extends to at least 6 PM (16 slots + row offset 2 = 18)
-        // to make dragging into empty columns easy.
-        const endRow = Math.max(18, cumulativeRow);
-        bg.style.gridRow = `2 / ${endRow}`;
+        
+        // Use the globally calculated max row so all columns are equal height but tight to content
+        bg.style.gridRow = `2 / ${globalMaxRow}`;
 
         // Turn into flex column container to work natively with SortableJS
         bg.style.display = "flex";

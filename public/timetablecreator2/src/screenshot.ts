@@ -24,10 +24,20 @@ export function initializeScreenshot() {
     const exportModalOverlay = document.getElementById("exportModalOverlay");
     const exportModalDialog = document.getElementById("exportModalDialog");
     const closeExportBtn = document.getElementById("closeExportBtn");
-    const exportTriggers = document.querySelectorAll(".export-trigger");
+    const generatePreviewBtn = document.getElementById("generatePreviewBtn");
+    const downloadScreenshotBtn = document.getElementById("downloadScreenshotBtn");
+    const previewContainer = document.getElementById("previewContainer");
+    const exportPreviewImage = document.getElementById("exportPreviewImage") as HTMLImageElement;
+    const exportWidthInput = document.getElementById("exportWidthInput") as HTMLInputElement;
+    const exportHeightInput = document.getElementById("exportHeightInput") as HTMLInputElement;
     const loadingSpinner = document.getElementById("exportLoadingSpinner");
 
+    let currentDataUrl: string | null = null;
+
     function openModal() {
+        if (previewContainer) previewContainer.style.display = "none";
+        if (exportPreviewImage) exportPreviewImage.src = "";
+        currentDataUrl = null;
         exportModalOverlay?.classList.add("active");
         exportModalDialog?.classList.add("active");
     }
@@ -42,142 +52,100 @@ export function initializeScreenshot() {
     exportModalOverlay?.addEventListener("click", closeModal);
     closeExportBtn?.addEventListener("click", closeModal);
 
-    exportTriggers.forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            const target = e.currentTarget as HTMLButtonElement;
-            const resMode = target.getAttribute("data-res") || "auto";
+    generatePreviewBtn?.addEventListener("click", async () => {
+        const w = parseInt(exportWidthInput?.value || "1080", 10);
+        const h = parseInt(exportHeightInput?.value || "2400", 10);
 
-            if (loadingSpinner) loadingSpinner.style.display = "block";
+        if (loadingSpinner) loadingSpinner.style.display = "block";
+        if (previewContainer) previewContainer.style.display = "none";
 
-            // Add screenshot-mode class to body to trigger CSS overrides
-            document.body.classList.add("screenshot-mode");
+        // Add screenshot-mode class to body to trigger CSS overrides
+        document.body.classList.add("screenshot-mode");
 
-            // Wait a tiny bit for reflow and animations to finish
-            await new Promise(r => setTimeout(r, 150));
+        // Wait a tiny bit for reflow and animations to finish
+        await new Promise(r => setTimeout(r, 150));
 
-            try {
-                const container = document.querySelector(".timetable-container") as HTMLElement;
-                if (!container) throw new Error("Could not find grid container");
-                
-                // Add screenshot context specifically to container
-                container.classList.add("screenshot-mode");
+        try {
+            const container = document.querySelector(".timetable-container") as HTMLElement;
+            if (!container) throw new Error("Could not find grid container");
+            
+            // Responsiveness Fix: Remove max-width so the container natively takes the exact phone width
+            const originalWidth = container.style.width;
+            const originalMaxWidth = container.style.maxWidth;
+            const originalMinHeight = container.style.minHeight;
+            
+            container.style.maxWidth = "none";
+            container.style.width = `${w}px`;
+            container.style.minHeight = `${h}px`; // Fills entire phone screen lockscreen height automatically if shorter!
+            
+            // Let the DOM natively recalculate layouts based on cqw sizes with the new exact pixel width
+            await new Promise(r => setTimeout(r, 100));
 
-                const originalParent = container.parentNode;
-                const originalNextSibling = container.nextSibling;
+            // Add screenshot context specifically to container
+            container.classList.add("screenshot-mode");
 
-                let captureTarget: HTMLElement;
-                let frame: HTMLDivElement | null = null;
-                let captureWidth: number;
-                let captureHeight: number;
-                let exportScale: number = 1;
+            const captureTarget = container;
+            const captureWidth = w;
+            const captureHeight = Math.max(h, container.scrollHeight); // Take all the space it needs!
 
-                if (resMode === "auto") {
-                    // AUTO-CROP: Capture the container directly — no frame, no extra padding.
-                    // The timetable fills the entire screenshot edge-to-edge.
-                    captureTarget = container;
-                    captureWidth = container.scrollWidth;
-                    captureHeight = container.scrollHeight;
-                    exportScale = 2; // High DPI
-                    
-                } else {
-                    // WALLPAPER / FULL DEVICE RESOLUTION — use a frame to center on canvas
-                    frame = document.createElement("div");
-                    frame.style.backgroundColor = getComputedStyle(document.body).backgroundColor;
-                    frame.style.display = "flex";
-                    frame.style.justifyContent = "center";
-                    frame.style.alignItems = "center";
-                    frame.style.boxSizing = "border-box";
-
-                    const [w, h] = resMode.split("x").map(Number);
-                    captureWidth = w;
-                    captureHeight = h;
-                    exportScale = 1; // 1:1 Pixel Mapping for the target device
-
-                    frame.style.width = `${captureWidth}px`;
-                    frame.style.height = `${captureHeight}px`;
-                    frame.style.position = "relative";
-                    frame.style.overflow = "hidden"; // Act exactly like a rigid phone screen
-
-                    // Calculate optical scale factor so timetable perfectly fills the screen
-                    const BASE_WIDTH = 540;
-                    const timetableRawHeight = container.scrollHeight;
-                    
-                    // How much to scale it to fill width
-                    const scaleToWidth = captureWidth / BASE_WIDTH;
-                    // How much to scale it to fit height without clipping
-                    const scaleToHeight = captureHeight / timetableRawHeight;
-                    
-                    // Pick the smallest scale so it fits on screens without overflowing, keeping a 8% aesthetic safety margin
-                    const finalScale = Math.min(scaleToWidth, scaleToHeight) * 0.92;
-
-                    container.style.transform = `scale(${finalScale})`;
-                    container.style.transformOrigin = "center center";
-
-                    // Inject wrapper structurally
-                    if(originalParent) originalParent.insertBefore(frame, container);
-                    frame.appendChild(container);
-                    captureTarget = frame;
-                }
-
-                // Measure the actual rendered size
-                const renderWidth = captureWidth;
-                const renderHeight = resMode === "auto" ? captureTarget.scrollHeight : captureHeight;
-
-                // Use dom-to-image-more — it serializes the DOM into SVG foreignObject
-                // and lets the browser render it natively, so ALL CSS features work:
-                // box-shadow, mix-blend-mode, backdrop-filter, etc.
-                const dataUrl = await domtoimage.toPng(captureTarget, {
-                    width: renderWidth * exportScale,
-                    height: renderHeight * exportScale,
-                    style: {
-                        transform: `scale(${exportScale})`,
-                        transformOrigin: "top left",
-                        width: `${renderWidth}px`,
-                        height: `${renderHeight}px`,
-                    },
-                    // Filter out elements we don't want in the screenshot
-                    filter: (node: Element) => {
-                        if (node.classList && (
-                            node.classList.contains("ignore-screenshot") ||
-                            node.classList.contains("resize-handle")
-                        )) {
-                            return false;
-                        }
-                        return true;
+            // Serialize and capture
+            const dataUrl = await domtoimage.toPng(captureTarget, {
+                width: captureWidth,
+                height: captureHeight,
+                style: {
+                    width: `${captureWidth}px`,
+                    height: `${captureHeight}px`,
+                    // No transforms! Purely native edge-to-edge!
+                },
+                filter: (node: Element) => {
+                    if (node.classList && (
+                        node.classList.contains("ignore-screenshot") ||
+                        node.classList.contains("resize-handle")
+                    )) {
+                        return false;
                     }
-                });
-
-                // Cleanup & Revert DOM modifications perfectly
-                container.style.transform = "";
-                container.style.transformOrigin = "";
-                
-                if (frame) {
-                    if (originalParent) {
-                        if (originalNextSibling) {
-                            originalParent.insertBefore(container, originalNextSibling);
-                        } else {
-                            originalParent.appendChild(container);
-                        }
-                    }
-                    frame.remove();
+                    return true;
                 }
+            });
 
-                const link = document.createElement("a");
-                link.download = generateScreenshotFilename();
-                link.href = dataUrl;
-                link.click();
-                closeModal();
-            } catch (err) {
-                console.error("Screenshot failed", err);
-                alert("Failed to generate screenshot.");
-            } finally {
-                // Revert DOM
-                document.body.classList.remove("screenshot-mode");
-                const cleanupContainer = document.querySelector(".timetable-container");
-                if (cleanupContainer) cleanupContainer.classList.remove("screenshot-mode");
-                
-                if (loadingSpinner) loadingSpinner.style.display = "none";
+            // Cleanup & Revert DOM modifications perfectly
+            container.style.width = originalWidth;
+            container.style.maxWidth = originalMaxWidth;
+            container.style.minHeight = originalMinHeight;
+            container.classList.remove("screenshot-mode");
+
+            // Display in explicit preview UI
+            currentDataUrl = dataUrl;
+            if (exportPreviewImage) exportPreviewImage.src = dataUrl;
+            if (previewContainer) previewContainer.style.display = "flex";
+
+        } catch (err) {
+
+            console.error("Screenshot failed", err);
+            alert("Failed to generate screenshot.");
+            
+            // Revert layout locking on error
+            const container = document.querySelector(".timetable-container") as HTMLElement;
+            if (container) {
+                container.style.width = "";
+                container.style.maxWidth = "480px";
             }
-        });
+        } finally {
+            // Revert DOM
+            document.body.classList.remove("screenshot-mode");
+            const cleanupContainer = document.querySelector(".timetable-container");
+            if (cleanupContainer) cleanupContainer.classList.remove("screenshot-mode");
+            
+            if (loadingSpinner) loadingSpinner.style.display = "none";
+        }
+    });
+
+    downloadScreenshotBtn?.addEventListener("click", () => {
+        if (!currentDataUrl) return;
+        const link = document.createElement("a");
+        link.download = generateScreenshotFilename();
+        link.href = currentDataUrl;
+        link.click();
+        closeModal();
     });
 }
