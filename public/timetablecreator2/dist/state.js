@@ -1,8 +1,8 @@
 export class StateManager {
     days = [];
     settings = {
-        themeId: "evergreen", // Default 
-        cornerRounding: 12,
+        themeId: "evergreen", // Default
+        cornerRounding: 60, // Matches the slider/CSS default in index.html & styles.css
         visibleDays: [0, 1, 2, 3, 4], // Mon to Fri
         dayLabels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], // Full dictionary
         hideLunchBreak: false,
@@ -90,10 +90,6 @@ export class StateManager {
         }
         return false;
     }
-    // Ensures events don't overlap by packing them
-    packDay(dayIndex) {
-        // ... omitted
-    }
     addEvent(dayIndex, event, insertIndex) {
         const day = this.days[dayIndex];
         if (insertIndex !== undefined) {
@@ -139,26 +135,11 @@ export class StateManager {
             day.events.forEach(evt => {
                 const standardized = evt.subject.trim().toLowerCase();
                 if (!unique.has(standardized)) {
-                    unique.set(standardized, evt.colorHex);
+                    unique.set(standardized, { subject: evt.subject, colorHex: evt.colorHex });
                 }
             });
         });
-        const result = [];
-        unique.forEach((colorHex, subjectRaw) => {
-            // Find the original capitalized version from the DOM or just use the first map entry.
-            // Actually, best to iterate again or store the original casing in the map.
-        });
-        // Let's refine the map logic above.
-        const perfectUnique = new Map();
-        this.days.forEach(day => {
-            day.events.forEach(evt => {
-                const standardized = evt.subject.trim().toLowerCase();
-                if (!perfectUnique.has(standardized)) {
-                    perfectUnique.set(standardized, { subject: evt.subject, colorHex: evt.colorHex });
-                }
-            });
-        });
-        return Array.from(perfectUnique.values());
+        return Array.from(unique.values());
     }
 }
 export const appState = new StateManager();

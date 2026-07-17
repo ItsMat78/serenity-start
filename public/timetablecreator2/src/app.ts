@@ -1,10 +1,16 @@
 import { appState } from "./state.js";
 import { renderGrid } from "./grid.js";
-import { applyTheme, themes, renderPresetTray } from "./themes.js";
+import { applyTheme, syncThemeVisuals, getCurrentTheme, themes, renderPresetTray } from "./themes.js";
 import { initializeDragAndDrop } from "./dragDrop.js";
 import { initializeEventEditor } from "./eventEditor.js";
 import { initializeStorage } from "./storage.js";
 import { initializeScreenshot } from "./screenshot.js";
+
+// Monotonic counter guarantees unique IDs even within the same millisecond
+let eventIdCounter = 0;
+function generateEventId(): string {
+    return `evt_${Date.now()}_${eventIdCounter++}`;
+}
 
 function getNextAvailableDayIndex(eventDuration: number): number {
     for (const dayIndex of appState.settings.visibleDays) {
@@ -49,7 +55,7 @@ function initApp() {
         const duration = 2; // 1 hour
         const targetDay = getNextAvailableDayIndex(duration);
         appState.addEvent(targetDay, {
-            id: "evt_" + Date.now(),
+            id: generateEventId(),
             subject: "New Event",
             duration: duration,
             colorHex: themes[appState.settings.themeId]?.subjectColors.subject1 || "#9bc55f"
@@ -65,26 +71,110 @@ function initApp() {
         appState.redo();
     });
 
-    // Global listener for state changes (history traversal)
-    document.addEventListener("stateChanged", () => {
-        renderGrid();
-        // Update UI of undo/redo buttons if needed (disabled states)
-        const undoBtn = document.getElementById("undoBtn") as HTMLButtonElement;
-        const redoBtn = document.getElementById("redoBtn") as HTMLButtonElement;
-        if (undoBtn) undoBtn.disabled = appState.historyIndex <= 0;
-        if (redoBtn) redoBtn.disabled = appState.historyIndex >= appState.history.length - 1;
-
-        // Refresh preset tray dynamically on state change so new subjects appear
-        renderPresetTray();
-    });
+    // Global listener for state changes (commits AND history traversal)
+    document.addEventListener("stateChanged", syncUIFromState);
 
     // Dedicated listener for theme UI updates
     document.addEventListener("themeChanged", () => {
         renderPresetTray();
     });
 
-    // Run first layout
+    // Run first layout & sync all UI from the (possibly restored) state
+    syncUIFromState();
+}
+
+/**
+ * Single sync point that makes ALL visual state match appState. Runs after every
+ * commit and after undo/redo, so restored snapshots fully re-apply theme,
+ * header text, corner rounding and settings controls — not just the grid.
+ */
+function syncUIFromState() {
+    // Re-apply theme visuals if the restored state uses a different theme
+    if (appState.settings.themeId !== getCurrentTheme().id) {
+        syncThemeVisuals(appState.settings.themeId);
+    }
+
+    renderHeaders();
+    applyCornerRounding(appState.settings.cornerRounding);
+    hydrateLunchControls();
+    hydrateVisibleDayCheckboxes();
+    updateActiveThemeCard();
+
     renderGrid();
+
+    // Update UI of undo/redo buttons if needed (disabled states)
+    const undoBtn = document.getElementById("undoBtn") as HTMLButtonElement;
+    const redoBtn = document.getElementById("redoBtn") as HTMLButtonElement;
+    if (undoBtn) undoBtn.disabled = appState.historyIndex <= 0;
+    if (redoBtn) redoBtn.disabled = appState.historyIndex >= appState.history.length - 1;
+
+    // Refresh preset tray dynamically on state change so new subjects appear
+    renderPresetTray();
+}
+
+/** Renders the header/footer text elements from state */
+function renderHeaders() {
+    const headers = appState.settings.headers;
+    if (!headers) return;
+    const subEl = document.getElementById("subtitleEl");
+    const t1El = document.getElementById("titleLine1El");
+    const t2El = document.getElementById("titleLine2El");
+    const versEl = document.getElementById("versionTagEl");
+    const footEl = document.getElementById("footerEl");
+    if (subEl) subEl.innerText = headers.subtitle;
+    if (t1El) t1El.innerText = headers.title1;
+    if (t2El) t2El.innerText = headers.title2;
+    if (versEl) versEl.innerText = headers.version;
+    if (footEl) footEl.innerText = headers.footer;
+}
+
+/**
+ * Applies corner rounding to the container and syncs the slider position.
+ * NOTE: the CSS variable must be set on .timetable-container (not :root) because
+ * the container declares its own --item-border-radius-raw, which would shadow
+ * any value set higher up the tree.
+ */
+function applyCornerRounding(value: number) {
+    if (!Number.isFinite(value)) return;
+    const container = document.querySelector(".timetable-container") as HTMLElement | null;
+    container?.style.setProperty("--item-border-radius-raw", value.toString());
+    const slider = document.getElementById("cornerRounding") as HTMLInputElement | null;
+    if (slider) slider.value = value.toString();
+}
+
+/** Syncs the lunch settings controls from state (with legacy-flag fallback) */
+function hydrateLunchControls() {
+    const enableLunchToggle = document.getElementById("enableLunchToggle") as HTMLInputElement | null;
+    const lunchStartTime = document.getElementById("lunchStartTimeInput") as HTMLInputElement | null;
+    const lunchDuration = document.getElementById("lunchDurationInput") as HTMLSelectElement | null;
+    if (!enableLunchToggle || !lunchStartTime || !lunchDuration) return;
+
+    // Backwards compatibility mapping for states saved before the lunch object existed
+    const lunchConfig = appState.settings.lunch || {
+        enabled: !appState.settings.hideLunchBreak,
+        startTime: "13:00",
+        duration: 60
+    };
+
+    enableLunchToggle.checked = lunchConfig.enabled;
+    lunchStartTime.value = lunchConfig.startTime;
+    lunchDuration.value = lunchConfig.duration.toString();
+}
+
+/** Syncs the visible-days checkboxes from state */
+function hydrateVisibleDayCheckboxes() {
+    const daysContainer = document.getElementById("visibleDaysCheckboxes");
+    if (!daysContainer) return;
+    daysContainer.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach(cb => {
+        cb.checked = appState.settings.visibleDays.includes(parseInt(cb.value));
+    });
+}
+
+/** Highlights the theme card matching the current state */
+function updateActiveThemeCard() {
+    document.querySelectorAll<HTMLElement>("#themeSelector .theme-option-card").forEach(card => {
+        card.classList.toggle("active", card.dataset.id === appState.settings.themeId);
+    });
 }
 
 function renderThemeSettingsSelector() {
@@ -103,24 +193,19 @@ function renderThemeSettingsSelector() {
     });
     selector.innerHTML = html;
 
-    // Active state
-    const cards = selector.querySelectorAll(".theme-option-card");
-    cards[0].classList.add("active"); // evergreen is default in html
+    // Active state reflects whatever theme the (possibly restored) state uses
+    updateActiveThemeCard();
 
-    cards.forEach(card => {
+    selector.querySelectorAll(".theme-option-card").forEach(card => {
         card.addEventListener('click', (e) => {
             const target = (e.currentTarget as HTMLElement);
             const id = target.dataset.id!;
 
-            // Reapply theme and save to state
+            // Reapply theme and save to state.
+            // commitState triggers syncUIFromState, which refreshes the grid & active card.
             applyTheme(id);
             appState.settings.themeId = id;
             appState.commitState();
-
-            // Visual refresh
-            cards.forEach(c => c.classList.remove("active"));
-            target.classList.add("active");
-            renderGrid(); // Refresh colors on grid
         });
     });
 }
@@ -136,28 +221,15 @@ function setupHeaderEditors() {
     const vers = document.getElementById("editVersion") as HTMLInputElement;
     const foot = document.getElementById("editFooter") as HTMLTextAreaElement;
 
-    // Output Elements
-    const subEl = document.getElementById("subtitleEl")!;
-    const t1El = document.getElementById("titleLine1El")!;
-    const t2El = document.getElementById("titleLine2El")!;
-    const versEl = document.getElementById("versionTagEl")!;
-    const footEl = document.getElementById("footerEl")!;
-
     // Initial render from state if it exists
-    if (appState.settings.headers) {
-        subEl.innerText = appState.settings.headers.subtitle;
-        t1El.innerText = appState.settings.headers.title1;
-        t2El.innerText = appState.settings.headers.title2;
-        versEl.innerText = appState.settings.headers.version;
-        footEl.innerText = appState.settings.headers.footer;
-    }
+    renderHeaders();
 
     editBtn?.addEventListener("click", () => {
-        sub.value = subEl.innerText;
-        t1.value = t1El.innerText;
-        t2.value = t2El.innerText;
-        vers.value = versEl.innerText;
-        foot.value = footEl.innerText;
+        sub.value = document.getElementById("subtitleEl")!.innerText;
+        t1.value = document.getElementById("titleLine1El")!.innerText;
+        t2.value = document.getElementById("titleLine2El")!.innerText;
+        vers.value = document.getElementById("versionTagEl")!.innerText;
+        foot.value = document.getElementById("footerEl")!.innerText;
         modal?.classList.add("active");
     });
 
@@ -166,11 +238,6 @@ function setupHeaderEditors() {
     });
 
     document.getElementById("saveHeaderEdit")?.addEventListener("click", () => {
-        subEl.innerText = sub.value;
-        t1El.innerText = t1.value;
-        t2El.innerText = t2.value;
-        versEl.innerText = vers.value;
-        footEl.innerText = foot.value;
         modal?.classList.remove("active");
 
         appState.settings.headers = {
@@ -180,6 +247,7 @@ function setupHeaderEditors() {
             version: vers.value,
             footer: foot.value
         };
+        // commitState triggers syncUIFromState, which renders the header text
         appState.commitState();
     });
 }
@@ -192,10 +260,16 @@ function setupSettingsPanel() {
     btn?.addEventListener('click', () => panel?.classList.toggle('open'));
     closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
 
-    // Corner rounding slider
-    document.getElementById("cornerRounding")?.addEventListener('input', (e) => {
-        const val = (e.target as HTMLInputElement).value;
-        document.documentElement.style.setProperty("--item-border-radius-raw", val);
+    // Corner rounding slider: live-preview while dragging, commit to history on release
+    const roundingSlider = document.getElementById("cornerRounding") as HTMLInputElement | null;
+    roundingSlider?.addEventListener('input', () => {
+        applyCornerRounding(parseInt(roundingSlider.value));
+    });
+    roundingSlider?.addEventListener('change', () => {
+        const val = parseInt(roundingSlider.value);
+        if (!Number.isFinite(val)) return;
+        appState.settings.cornerRounding = val;
+        appState.commitState();
     });
 
     // Visible Days Checkboxes
@@ -204,10 +278,7 @@ function setupSettingsPanel() {
         const checkboxes = daysContainer.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
 
         // Initialize from state (on load)
-        checkboxes.forEach(cb => {
-            const dayIndex = parseInt(cb.value);
-            cb.checked = appState.settings.visibleDays.includes(dayIndex);
-        });
+        hydrateVisibleDayCheckboxes();
 
         daysContainer.addEventListener('change', () => {
             const selected: number[] = [];
@@ -222,7 +293,7 @@ function setupSettingsPanel() {
                 selected.push(parseInt(first.value));
             }
 
-            appState.settings.visibleDays = selected.sort(); // Keep Mon-Sun order
+            appState.settings.visibleDays = selected.sort((a, b) => a - b); // Keep Mon-Sun order
             appState.commitState();
             renderGrid();
         });
@@ -235,15 +306,7 @@ function setupSettingsPanel() {
 
     if (enableLunchToggle && lunchStartTime && lunchDuration) {
         // Hydrate from State Object (backwards compatibility mapping)
-        const lunchConfig = appState.settings.lunch || {
-            enabled: !appState.settings.hideLunchBreak,
-            startTime: "13:00",
-            duration: 60
-        };
-
-        enableLunchToggle.checked = lunchConfig.enabled;
-        lunchStartTime.value = lunchConfig.startTime;
-        lunchDuration.value = lunchConfig.duration.toString();
+        hydrateLunchControls();
 
         const updateLunchConfig = () => {
             appState.settings.lunch = {
@@ -272,11 +335,29 @@ function setupSettingsPanel() {
 
     // Global Keybinds
     document.addEventListener("keydown", (e) => {
-        if (e.ctrlKey && e.key.toLowerCase() === "z") {
+        // Don't hijack undo/redo while the user is typing in a form field —
+        // the browser's native text undo must keep working there.
+        const target = e.target as HTMLElement | null;
+        if (target && (
+            target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.tagName === "SELECT" ||
+            target.isContentEditable
+        )) {
+            return;
+        }
+
+        const mod = e.ctrlKey || e.metaKey; // metaKey covers Cmd on macOS
+        if (!mod) return;
+
+        const key = e.key.toLowerCase();
+        if (key === "z" && e.shiftKey) {
+            e.preventDefault();
+            document.getElementById("redoBtn")?.click();
+        } else if (key === "z") {
             e.preventDefault();
             document.getElementById("undoBtn")?.click();
-        }
-        if (e.ctrlKey && e.key.toLowerCase() === "y") {
+        } else if (key === "y") {
             e.preventDefault();
             document.getElementById("redoBtn")?.click();
         }
@@ -296,7 +377,7 @@ function setupPresetTray() {
         const duration = 2; // 1 hour
         const targetDay = getNextAvailableDayIndex(duration);
         appState.addEvent(targetDay, {
-            id: "evt_" + Date.now() + Math.floor(Math.random() * 100),
+            id: generateEventId(),
             subject,
             duration: duration,
             colorHex

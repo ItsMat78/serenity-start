@@ -16,7 +16,8 @@ export function saveTimetable() {
             cornerRounding: parseInt(document.getElementById("cornerRounding").value),
             visibleDays: appState.settings.visibleDays,
             dayLabels: appState.settings.dayLabels,
-            hideLunchBreak: appState.settings.hideLunchBreak
+            hideLunchBreak: appState.settings.hideLunchBreak,
+            lunch: appState.settings.lunch
         }
     };
     const dataStr = JSON.stringify(data, null, 2);
@@ -45,16 +46,10 @@ export function loadTimetable(data) {
         version: data.content.version,
         footer: data.content.footer
     };
-    // Load Content visually
-    document.getElementById("subtitleEl").innerText = data.content.subtitle;
-    document.getElementById("titleLine1El").innerText = data.content.titleLine1;
-    document.getElementById("titleLine2El").innerText = data.content.titleLine2;
-    document.getElementById("versionTagEl").innerText = data.content.version;
-    document.getElementById("footerEl").innerText = data.content.footer;
-    // Load Settings visually
+    // Load Settings visually. Header text, corner rounding, lunch controls and the
+    // rest of the settings UI are synced from state by the stateChanged listener
+    // that commitState() triggers below.
     applyTheme(data.settings.themeId);
-    document.getElementById("cornerRounding").value = data.settings.cornerRounding.toString();
-    document.documentElement.style.setProperty("--item-border-radius", `${data.settings.cornerRounding}px`);
     appState.commitState();
     renderGrid();
 }

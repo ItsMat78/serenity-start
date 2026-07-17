@@ -51,18 +51,24 @@ export function initializeScreenshot() {
             loadingSpinner.style.display = "block";
         if (previewContainer)
             previewContainer.style.display = "none";
+        const container = document.querySelector(".timetable-container");
+        if (!container) {
+            console.error("Screenshot failed: could not find grid container");
+            alert("Failed to generate screenshot.");
+            if (loadingSpinner)
+                loadingSpinner.style.display = "none";
+            return;
+        }
+        // Capture original inline styles up front so ALL exit paths can restore them
+        const originalWidth = container.style.width;
+        const originalMaxWidth = container.style.maxWidth;
+        const originalMinHeight = container.style.minHeight;
         // Add screenshot-mode class to body to trigger CSS overrides
         document.body.classList.add("screenshot-mode");
         // Wait a tiny bit for reflow and animations to finish
         await new Promise(r => setTimeout(r, 150));
         try {
-            const container = document.querySelector(".timetable-container");
-            if (!container)
-                throw new Error("Could not find grid container");
             // Responsiveness Fix: Remove max-width so the container natively takes the exact phone width
-            const originalWidth = container.style.width;
-            const originalMaxWidth = container.style.maxWidth;
-            const originalMinHeight = container.style.minHeight;
             container.style.maxWidth = "none";
             container.style.width = `${w}px`;
             container.style.minHeight = `${h}px`; // Fills entire phone screen lockscreen height automatically if shorter!
@@ -90,11 +96,6 @@ export function initializeScreenshot() {
                     return true;
                 }
             });
-            // Cleanup & Revert DOM modifications perfectly
-            container.style.width = originalWidth;
-            container.style.maxWidth = originalMaxWidth;
-            container.style.minHeight = originalMinHeight;
-            container.classList.remove("screenshot-mode");
             // Display in explicit preview UI
             currentDataUrl = dataUrl;
             if (exportPreviewImage)
@@ -105,19 +106,14 @@ export function initializeScreenshot() {
         catch (err) {
             console.error("Screenshot failed", err);
             alert("Failed to generate screenshot.");
-            // Revert layout locking on error
-            const container = document.querySelector(".timetable-container");
-            if (container) {
-                container.style.width = "";
-                container.style.maxWidth = "480px";
-            }
         }
         finally {
-            // Revert DOM
+            // Revert ALL DOM modifications, on both success and failure
+            container.style.width = originalWidth;
+            container.style.maxWidth = originalMaxWidth;
+            container.style.minHeight = originalMinHeight;
+            container.classList.remove("screenshot-mode");
             document.body.classList.remove("screenshot-mode");
-            const cleanupContainer = document.querySelector(".timetable-container");
-            if (cleanupContainer)
-                cleanupContainer.classList.remove("screenshot-mode");
             if (loadingSpinner)
                 loadingSpinner.style.display = "none";
         }

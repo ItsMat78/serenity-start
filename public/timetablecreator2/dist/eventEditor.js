@@ -3,6 +3,19 @@ import { renderGrid } from "./grid.js";
 import { getCurrentTheme } from "./themes.js";
 let currentEditingEventId = null;
 let currentEditingDayIndex = -1;
+// Source of truth for the color being edited. <input type="color"> only accepts
+// 6-digit hex and silently sanitizes anything else (e.g. rgba() theme colors)
+// to #000000, so its value cannot be trusted as storage.
+let selectedColor = "#000000";
+const HEX_COLOR_RE = /^#[0-9a-f]{6}$/i;
+function setSelectedColor(color) {
+    selectedColor = color;
+    const input = document.getElementById("eventColor");
+    // Only sync the native picker when the value is a hex it can represent
+    if (input && HEX_COLOR_RE.test(color))
+        input.value = color;
+    document.getElementById("colorPreviewBox").style.backgroundColor = color;
+}
 export function initializeEventEditor() {
     const overlay = document.getElementById("eventEditorOverlay");
     const sheet = document.getElementById("eventEditorSheet");
@@ -19,6 +32,7 @@ export function initializeEventEditor() {
     // Color Input Change
     document.getElementById("eventColor")?.addEventListener('input', (e) => {
         const val = e.target.value;
+        selectedColor = val;
         const box = document.getElementById("colorPreviewBox");
         box.style.backgroundColor = val;
         // Deselect swatches
@@ -39,8 +53,7 @@ function openEditor(eventId, dayIndex) {
     document.getElementById("eventSubject").value = evt.subject;
     document.getElementById("eventDuration").value = evt.duration.toString();
     // Populate Color
-    document.getElementById("eventColor").value = evt.colorHex;
-    document.getElementById("colorPreviewBox").style.backgroundColor = evt.colorHex;
+    setSelectedColor(evt.colorHex);
     // Render Swatches
     renderSwatches(evt.colorHex);
     // Show Sheet
@@ -61,9 +74,8 @@ function renderSwatches(activeHex) {
         sw.addEventListener('click', (e) => {
             const target = e.target;
             const color = target.dataset.color;
-            // Update custom picker
-            document.getElementById("eventColor").value = color;
-            document.getElementById("colorPreviewBox").style.backgroundColor = color;
+            // Update custom picker + tracked color
+            setSelectedColor(color);
             // Update UI selection
             container.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove("selected"));
             target.classList.add("selected");
@@ -83,8 +95,12 @@ function saveEditor() {
     if (!evt)
         return;
     const subject = document.getElementById("eventSubject").value;
-    const duration = parseInt(document.getElementById("eventDuration").value);
-    const colorHex = document.getElementById("eventColor").value;
+    const colorHex = selectedColor;
+    // Guard against a select value that doesn't map to a number (e.g. legacy data)
+    let duration = parseInt(document.getElementById("eventDuration").value);
+    if (!Number.isFinite(duration))
+        duration = evt.duration;
+    duration = Math.min(10, Math.max(1, duration));
     const oldSubject = evt.subject.trim();
     const newSubject = subject.trim();
     const isSubjectColorChanged = oldSubject !== newSubject || evt.colorHex !== colorHex;

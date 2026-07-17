@@ -730,7 +730,7 @@ button:active {
   border-radius: 20px;
 }
 
-.timetable-container[data-theme="glassmorphism"] body {
+body[data-theme="glassmorphism"] {
   background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
 }
 
@@ -1076,6 +1076,12 @@ body.screenshot-mode .timetable-container,
   margin: 0;
   padding: 8cqw 4cqw;
   border-radius: 0;
+  /* Body is a flex row: never let a narrow (phone) viewport squash the container
+     below the requested export width — cqw sizing depends on the real width */
+  flex-shrink: 0;
+  /* Column flex so the footer can be pushed to the bottom edge of the wallpaper */
+  display: flex;
+  flex-direction: column;
 }
 
 body.screenshot-mode .timetable-grid,
@@ -1084,9 +1090,13 @@ body.screenshot-mode .timetable-grid,
   /* Stop flexbox from distributing empty 2400px wallpaper space between rows natively */
   align-content: start;
   justify-content: center;
-  grid-template-rows: auto auto;
+  /* NOTE: no grid-template-rows override here — the header row must stay
+     --grid-row-height tall like live mode, or the lunch line lands off-position */
 }
 
-body.screenshot-mode footer {
+body.screenshot-mode footer,
+.timetable-container.screenshot-mode footer {
   padding-top: 20px;
+  /* Pin the footer to the bottom edge when the wallpaper is taller than the content */
+  margin-top: auto;
 }

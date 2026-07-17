@@ -1,6 +1,10 @@
 import { appState } from "./state.js";
 import { renderGrid } from "./grid.js";
 let sortables = [];
+// True while a Sortable drag is in flight (and momentarily after drop), so the
+// tap-to-edit pointerup handler doesn't open the editor right after a drag.
+// On touch devices the dragged item still receives the trailing pointerup.
+let sortableDragging = false;
 export function initializeDragAndDrop() {
     setupResizeAndClickLogic();
     // Re-bind Sortable instances every time the grid completes a render phase
@@ -11,7 +15,12 @@ export function initializeDragAndDrop() {
             const s = new Sortable(bgEl, {
                 group: 'shared',
                 animation: 150,
+                onStart: () => {
+                    sortableDragging = true;
+                },
                 onEnd: (evt) => {
+                    // Clear the flag only after any trailing pointerup has been processed
+                    setTimeout(() => { sortableDragging = false; }, 0);
                     const fromDayIndex = parseInt(evt.from.dataset.day);
                     const toDayIndex = parseInt(evt.to.dataset.day);
                     const oldIndex = evt.oldIndex;
@@ -41,10 +50,13 @@ function setupResizeAndClickLogic() {
     let isResizing = false;
     let initialDuration = 0;
     let startY = 0;
+    let downX = 0;
+    let downY = 0;
     let activeItem = null;
     let _sourceId = "";
     let _sourceDayIndex = -1;
     const ROW_HEIGHT = 62; // roughly 56px height + 6px gap (from styles.css)
+    const TAP_MOVE_TOLERANCE = 8; // px of pointer travel still counted as a "tap"
     container.addEventListener('pointerdown', (e) => {
         const target = e.target;
         const resizeHandle = target.closest('.resize-handle');
@@ -53,6 +65,8 @@ function setupResizeAndClickLogic() {
             return;
         _sourceId = item.dataset.id || "";
         _sourceDayIndex = parseInt(item.dataset.day || "-1");
+        downX = e.clientX;
+        downY = e.clientY;
         // If clicking on resize handle directly
         if (resizeHandle) {
             isResizing = true;
@@ -94,17 +108,24 @@ function setupResizeAndClickLogic() {
                 newDuration = 1;
             if (newDuration > 10)
                 newDuration = 10;
-            appState.updateEvent(_sourceDayIndex, _sourceId, { duration: newDuration });
+            if (newDuration !== initialDuration) {
+                // Commits state, which re-renders the grid via stateChanged
+                appState.updateEvent(_sourceDayIndex, _sourceId, { duration: newDuration });
+            }
+            else {
+                // No change: just re-render to reset the visual morph (no history entry)
+                renderGrid();
+            }
             isResizing = false;
             activeItem = null;
-            renderGrid();
             return;
         }
         // Tap editing logic (Sortable absorbs dragging, so remaining pointerups that aren't dragged map to edits)
         const target = e.target;
         const item = target.closest('.schedule-item');
-        // We ensure we didn't just drop from a drag
-        if (!isResizing && item && !target.closest('.resize-handle')) {
+        // We ensure we didn't just drop from a drag and the pointer didn't travel (a real tap)
+        const moved = Math.hypot(e.clientX - downX, e.clientY - downY) > TAP_MOVE_TOLERANCE;
+        if (item && !sortableDragging && !moved && !target.closest('.resize-handle')) {
             const dropTag = item.dataset.id || "";
             const dayTag = parseInt(item.dataset.day || "-1");
             openEditor(dropTag, dayTag);

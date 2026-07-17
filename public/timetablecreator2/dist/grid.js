@@ -1,5 +1,5 @@
 import { appState } from "./state.js";
-import { getContrastTextColor } from "./themes.js";
+import { getContrastTextColor, escapeHtml } from "./themes.js";
 const GRID_START_ROW = 2;
 export function renderGrid() {
     const grid = document.getElementById("timetableGrid");
@@ -70,9 +70,9 @@ export function renderGrid() {
             const lunchObj = appState.settings.lunch || { enabled: !appState.settings.hideLunchBreak, startTime: "13:00", duration: 60 };
             let [lh, lm] = lunchObj.startTime.split(":").map(Number);
             let lunchStartMins = (lh * 60 + lm) - 540; // Min from 9am
-            // If this event mathematically starts at or after the lunch line, jump the clock unconditionally!
-            // The University timetable physics skips 1-2pm regardless of if the graphical Red Line is visible.
-            if (totalMinutes >= lunchStartMins) {
+            // If the lunch break is enabled and this event mathematically starts at or after
+            // the lunch line, jump the clock past the break.
+            if (lunchObj.enabled && totalMinutes >= lunchStartMins) {
                 totalMinutes += lunchObj.duration;
             }
             let hours = 9 + Math.floor(totalMinutes / 60);
@@ -84,12 +84,13 @@ export function renderGrid() {
                 hours = 12;
             const timeStr = mins === 0 ? `${hours} ${ampm}` : `${hours}:${mins.toString().padStart(2, '0')} ${ampm}`;
             // English Dictionary / Windows Chrome hyphenation fail-safe injection
+            // (escape each half separately so the &shy; entity survives HTML-escaping)
             const safeSubjectHyphenated = evt.subject.split(' ').map(word => {
                 if (word.length > 9 && !word.includes('-')) {
                     const mid = Math.floor(word.length / 2);
-                    return word.slice(0, mid) + '&shy;' + word.slice(mid);
+                    return escapeHtml(word.slice(0, mid)) + '&shy;' + escapeHtml(word.slice(mid));
                 }
-                return word;
+                return escapeHtml(word);
             }).join(' ');
             itemEl.innerHTML = `
                  <span class="time">${timeStr}</span>

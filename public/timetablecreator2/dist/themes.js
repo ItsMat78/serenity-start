@@ -248,39 +248,15 @@ export function getTheme(id) {
 export function getCurrentTheme() {
     return themes[currentThemeId];
 }
-export function applyTheme(id) {
-    const oldTheme = getTheme(appState.settings.themeId || currentThemeId);
+/**
+ * Applies a theme's CSS variables / data-theme attributes and updates the
+ * module's current-theme tracking WITHOUT remapping event colors.
+ * Used both by applyTheme and by undo/redo restoration (where event colors
+ * are already correct in the restored state and must not be remapped again).
+ */
+export function syncThemeVisuals(id) {
     const newTheme = getTheme(id);
     currentThemeId = newTheme.id;
-    appState.settings.themeId = newTheme.id;
-    // Dynamically Shift Event Colors based on mappings
-    let stateChanged = false;
-    appState.days.forEach(day => {
-        day.events.forEach(evt => {
-            const oldHex = evt.colorHex.toLowerCase();
-            let matchedKey = null;
-            // Look up the exact token key (subject1, break, etc) in the OLD theme that matches this hex
-            for (const [key, hexValue] of Object.entries(oldTheme.subjectColors)) {
-                if (hexValue.toLowerCase() === oldHex) {
-                    matchedKey = key;
-                    break;
-                }
-            }
-            // Apply the new theme's respective token hex to this event
-            if (matchedKey && newTheme.subjectColors[matchedKey]) {
-                const newHex = newTheme.subjectColors[matchedKey];
-                if (evt.colorHex !== newHex) {
-                    evt.colorHex = newHex;
-                    stateChanged = true;
-                }
-            }
-        });
-    });
-    if (stateChanged) {
-        // Just directly trigger the data snapshot because we mutated events safely
-        // Wait, app.ts already fires commitState immediately after applyTheme in the selector button, 
-        // so we don't need to recursively commit here. 
-    }
     const root = document.documentElement;
     root.style.setProperty("--bg-color", newTheme.bgColor);
     root.style.setProperty("--text-color", newTheme.textColor);
@@ -294,6 +270,31 @@ export function applyTheme(id) {
     const container = document.querySelector(".timetable-container");
     if (container)
         container.setAttribute("data-theme", newTheme.id);
+}
+export function applyTheme(id) {
+    const oldTheme = getTheme(appState.settings.themeId || currentThemeId);
+    const newTheme = getTheme(id);
+    appState.settings.themeId = newTheme.id;
+    // Dynamically Shift Event Colors based on mappings
+    appState.days.forEach(day => {
+        day.events.forEach(evt => {
+            const oldHex = evt.colorHex.toLowerCase();
+            let matchedKey = null;
+            // Look up the exact token key (subject1, break, etc) in the OLD theme that matches this hex
+            for (const [key, hexValue] of Object.entries(oldTheme.subjectColors)) {
+                if (hexValue.toLowerCase() === oldHex) {
+                    matchedKey = key;
+                    break;
+                }
+            }
+            // Apply the new theme's respective token hex to this event
+            // (The caller is responsible for committing the state afterwards.)
+            if (matchedKey && newTheme.subjectColors[matchedKey]) {
+                evt.colorHex = newTheme.subjectColors[matchedKey];
+            }
+        });
+    });
+    syncThemeVisuals(newTheme.id);
     // Give the DOM a tiny specific repaint moment before doing heavy operations
     setTimeout(() => {
         // Also re-render preset tray buttons with new colors
@@ -321,11 +322,21 @@ export function renderPresetTray(theme) {
     else {
         // Render buttons for every unique subject found in the grid
         uniqueSubjects.forEach(s => {
-            presetHtml += `<button class="preset-btn" data-subject="${s.subject}" data-color="${s.colorHex}" style="background-color: ${s.colorHex}; color: ${getContrastTextColor(s.colorHex)}">${s.subject}</button>`;
+            const safeSubject = escapeHtml(s.subject);
+            presetHtml += `<button class="preset-btn" data-subject="${safeSubject}" data-color="${s.colorHex}" style="background-color: ${s.colorHex}; color: ${getContrastTextColor(s.colorHex)}">${safeSubject}</button>`;
         });
     }
     presetHtml += `</div>`;
     tray.innerHTML = presetHtml;
+}
+/** Escapes user-provided text so it can be safely embedded in innerHTML templates */
+export function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 /** Utility to generate accessible text color */
 export function getContrastTextColor(hexColor) {

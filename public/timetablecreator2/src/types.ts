@@ -25,6 +25,11 @@ export interface SavedTimetable {
         visibleDays: number[]; // e.g. [0, 1, 2, 3, 4] for Mon-Fri
         dayLabels: string[];
         hideLunchBreak: boolean;
+        lunch?: {
+            enabled: boolean;
+            startTime: string;
+            duration: number;
+        };
         headers?: {
             subtitle: string;
             title1: string;
